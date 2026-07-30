@@ -3,135 +3,154 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>야장하기 좋은데이 사주풀이</title>
+<title>오늘의 사주 한 잔</title>
 <style>
   :root{
-    --navy:#003087; --navy-d:#001f57; --blue:#004ea8;
-    --bg:#eef1f7; --card:#ffffff; --ink:#1c1c1a; --sub:#5f6b7a; --line:#dce2ec;
-    --pink:#c65b6e; --purple:#6b4fa0; --gold:#b08a3e;
+    --ink:#26221a; --ink-d:#141210; --paper:#f5f1e8; --card:#fffdf7;
+    --gold:#ae8a3c; --gold-l:#d9c48e; --seal:#b0493f; --plum:#6d5a8e;
+    --sub:#8a7d6a; --line:#e8e1d0; --field:#fdfbf5;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  body{margin:0; background:var(--bg); color:var(--ink);
+  body{margin:0; background:var(--paper); color:var(--ink);
+    background-image:radial-gradient(circle at 50% -10%, #fbf8f0 0%, var(--paper) 60%);
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
-    line-height:1.65; padding:0 0 48px;}
+    line-height:1.7; padding:0 0 52px;}
+  .serif{font-family:"Apple SD Gothic Neo","Noto Serif KR",Georgia,serif;}
   .wrap{max-width:440px; margin:0 auto; padding:0 18px;}
-  header{text-align:center; padding:30px 0 16px;}
-  .badge{display:inline-block; background:var(--navy); color:#fff; font-size:12.5px; font-weight:700;
-    letter-spacing:.5px; padding:7px 14px; border-radius:999px; margin-bottom:13px;}
-  header h1{font-size:26px; margin:2px 0 6px; font-weight:800; color:var(--navy);}
+
+  header{text-align:center; padding:38px 0 20px;}
+  .orn{color:var(--gold); font-size:12px; letter-spacing:8px; font-weight:600;}
+  .han{color:var(--gold); font-size:14px; letter-spacing:10px; margin:8px 0 10px; font-weight:700;}
+  header h1{font-size:28px; margin:0 0 8px; font-weight:800; letter-spacing:-.5px;}
   header p{margin:0; color:var(--sub); font-size:13.5px;}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:16px;
-    padding:20px; margin:14px 0; box-shadow:0 1px 3px rgba(0,32,87,.05);}
-  label{display:block; font-size:13px; font-weight:700; margin:0 0 6px; color:var(--ink);}
-  .field{margin-bottom:15px;}
-  input,select{width:100%; padding:13px 12px; font-size:16px; border:1px solid var(--line);
-    border-radius:10px; background:#fff; color:var(--ink); appearance:none;}
-  input:focus,select:focus{outline:none; border-color:var(--navy);}
+  .divider{width:44px; height:1px; background:var(--gold-l); margin:16px auto 0; position:relative;}
+  .divider::after{content:"◆"; position:absolute; top:-7px; left:50%; transform:translateX(-50%) scale(.5); color:var(--gold);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:20px;
+    padding:24px 20px; margin:16px 0; box-shadow:0 2px 14px rgba(63,52,24,.06);}
+  label{display:block; font-size:12.5px; font-weight:700; margin:0 0 7px; color:var(--ink); letter-spacing:.3px;}
+  label .opt{color:var(--sub); font-weight:400;}
+  label .req{color:var(--seal); font-weight:800;}
+  .field{margin-bottom:16px;}
+  input,select{width:100%; padding:13px 14px; font-size:16px; border:1.5px solid var(--line);
+    border-radius:12px; background:var(--field); color:var(--ink); appearance:none;
+    transition:border-color .15s, box-shadow .15s;}
+  input:focus,select:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(174,138,60,.12);}
   .seg{display:flex; gap:8px; flex-wrap:wrap;}
-  .seg button{flex:1; min-width:60px; padding:11px 0; border:1px solid var(--line); background:#fff;
-    border-radius:10px; font-size:14px; color:var(--sub); cursor:pointer; font-weight:600;}
-  .seg button.on{border-color:var(--navy); background:var(--navy); color:#fff;}
-  .btn{width:100%; padding:15px; font-size:16px; font-weight:800; color:#fff;
-    background:var(--navy); border:none; border-radius:12px; cursor:pointer;}
-  .btn:active{background:var(--navy-d);}
-  .btn:disabled{opacity:.55;}
-  .btn.purpleB{background:var(--purple);}
-  .hint{font-size:12px; color:var(--sub); margin:6px 2px 0;}
+  .seg button{flex:1; min-width:60px; padding:11px 0; border:1.5px solid var(--line); background:var(--field);
+    border-radius:999px; font-size:14px; color:var(--sub); cursor:pointer; font-weight:600; transition:all .15s;}
+  .seg button.on{border-color:var(--ink); background:var(--ink); color:#fff;}
+  .btn{width:100%; padding:16px; font-size:16px; font-weight:800; color:#fff;
+    background:var(--ink); border:none; border-radius:14px; cursor:pointer; letter-spacing:.3px;
+    transition:transform .08s, background .15s;}
+  .btn:active{background:var(--ink-d); transform:scale(.985);}
+  .btn:disabled{opacity:.5;}
+  .hint{font-size:12px; color:var(--sub); margin:7px 2px 0;}
 
-  #result{display:none;}
-  .saju-card{background:linear-gradient(180deg,#ffffff,#eaf0fa); border:1px solid var(--line);
-    border-radius:16px; padding:22px 18px; text-align:center;}
-  .saju-card .date{font-size:12px; color:var(--sub); letter-spacing:1px;}
-  .pillars{display:flex; justify-content:center; gap:10px; margin:14px 0 6px;}
-  .pillar{flex:1; max-width:74px;}
-  .pillar .hanja{font-size:30px; font-weight:800; color:var(--navy);
-    font-family:"Apple SD Gothic Neo",serif; line-height:1.1;}
-  .pillar .role{font-size:11px; color:var(--sub); margin-top:5px;}
-  .pillar .kr{font-size:12px; color:var(--ink);}
-  .ilgan{margin-top:10px; font-size:13px; color:var(--navy); font-weight:700;}
-  .ohaeng{font-size:12px; color:var(--sub); margin-top:4px;}
-  .desc{font-size:15px; margin:16px 2px 4px; text-align:left;}
-  .desc p, .box p{margin:0 0 11px;} .desc p:last-child, .box p:last-child{margin:0;}
+  #result{display:none; animation:fadeUp .45s ease;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  .saju-card{background:linear-gradient(175deg,#fffdf7 0%,#faf5e9 100%); border:1px solid var(--gold-l);
+    border-radius:20px; padding:10px; box-shadow:0 3px 18px rgba(63,52,24,.08);}
+  .saju-inner{border:1px solid rgba(174,138,60,.35); border-radius:14px; padding:20px 14px; text-align:center;}
+  .saju-card .stars{color:var(--gold); font-size:11px; letter-spacing:6px;}
+  .saju-card .date{font-size:12px; color:var(--sub); letter-spacing:1.5px; margin-top:6px;}
+  .pillars{display:flex; justify-content:center; gap:8px; margin:16px 0 8px;}
+  .pillar{flex:1; max-width:76px; padding:10px 0 8px; background:#fff; border:1px solid var(--line); border-radius:12px;}
+  .pillar .hanja{font-size:29px; font-weight:800; color:var(--ink); line-height:1.15;}
+  .pillar .role{font-size:10.5px; color:var(--gold); margin-top:5px; font-weight:700; letter-spacing:1px;}
+  .pillar .kr{font-size:12px; color:var(--sub);}
+  .ilgan{margin-top:12px; font-size:13.5px; color:var(--ink); font-weight:800;}
+  .ohaeng{font-size:12px; color:var(--sub); margin-top:4px; letter-spacing:.5px;}
+  .desc{font-size:15px; margin:16px 4px 6px; text-align:left;}
+  .desc p, .box p{margin:0 0 12px;} .desc p:last-child, .box p:last-child{margin:0;}
 
-  h2.sec{font-size:14px; color:var(--sub); margin:26px 2px 10px; font-weight:700;}
-  .wide{width:100%; padding:15px; border-radius:12px; font-size:15.5px; font-weight:800; cursor:pointer; margin-bottom:10px;}
-  .wide.month{background:var(--navy); color:#fff; border:none;}
-  .wide.month.on{box-shadow:0 0 0 3px rgba(0,48,135,.22);}
-  .wide.persona{background:var(--purple); color:#fff; border:none;}
-  .wide.persona.on{box-shadow:0 0 0 3px rgba(107,79,160,.25);}
-  .wide.gung{background:#fff; color:var(--pink); border:1.5px solid var(--pink);}
-  .wide.gung.on{background:var(--pink); color:#fff;}
-  .wide.group{background:#fff; color:var(--gold); border:1.5px solid var(--gold);}
+  h2.sec{font-size:13px; color:var(--sub); margin:28px 2px 12px; font-weight:700; letter-spacing:.5px;
+    display:flex; align-items:center; gap:10px;}
+  h2.sec::before, h2.sec::after{content:""; flex:1; height:1px; background:var(--line);}
+  .wide{width:100%; padding:15px; border-radius:14px; font-size:15.5px; font-weight:800; cursor:pointer;
+    margin-bottom:10px; transition:transform .08s, box-shadow .15s;}
+  .wide:active{transform:scale(.985);}
+  .wide.month{background:var(--ink); color:#fff; border:none;}
+  .wide.month.on{box-shadow:0 0 0 3px rgba(38,34,26,.18);}
+  .wide.persona{background:var(--plum); color:#fff; border:none;}
+  .wide.persona.on{box-shadow:0 0 0 3px rgba(109,90,142,.25);}
+  .wide.gung{background:var(--card); color:var(--seal); border:1.5px solid var(--seal);}
+  .wide.gung.on{background:var(--seal); color:#fff;}
+  .wide.group{background:var(--card); color:var(--gold); border:1.5px solid var(--gold);}
   .wide.group.on{background:var(--gold); color:#fff;}
   .cats{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:10px;}
   .cat{padding:14px 0; border:1px solid var(--line); background:var(--card); border-radius:12px;
-    font-size:14.5px; font-weight:700; color:var(--navy); cursor:pointer; text-align:center;}
-  .cat.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+    font-size:14.5px; font-weight:700; color:var(--ink); cursor:pointer; text-align:center;
+    box-shadow:0 1px 4px rgba(63,52,24,.04); transition:all .12s;}
+  .cat.on{background:var(--ink); color:#fff; border-color:var(--ink);}
 
-  .panel{display:none; border-radius:14px; padding:16px; margin-bottom:10px;}
+  .panel{display:none; border-radius:16px; padding:18px 16px; margin-bottom:10px; animation:fadeUp .3s ease;}
   .panel.show{display:block;}
-  .panel .p-title{font-size:13.5px; font-weight:800; margin-bottom:12px;}
-  #partner{background:#fff7f8; border:1px solid #f0d9dd;}
-  #partner .p-title{color:var(--pink);}
-  #partner .btn{background:var(--pink);} #partner .btn:active{background:#a8485a;}
-  #partner .seg button.on{background:var(--pink); border-color:var(--pink);}
-  #gpanel{background:#fbf8f0; border:1px solid #e8ddc2;}
+  .panel .p-title{font-size:13.5px; font-weight:800; margin-bottom:13px;}
+  #partner{background:#fdf6f4; border:1px solid #eed6cf;}
+  #partner .p-title{color:var(--seal);}
+  #partner .btn{background:var(--seal);} #partner .btn:active{background:#93392f;}
+  #partner .seg button.on{background:var(--seal); border-color:var(--seal);}
+  #gpanel{background:#fbf7ec; border:1px solid #e8dcbc;}
   #gpanel .p-title{color:var(--gold);}
   #gpanel .p-title .cnt{float:right; font-weight:700; color:var(--sub); font-size:12.5px;}
   .chips{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:13px;}
-  .chip{background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 12px;
+  .chip{background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 13px;
     font-size:13px; font-weight:600; color:var(--ink);}
-  .chip b{color:var(--navy);}
-  .chip.me{background:var(--navy); border-color:var(--navy); color:#fff;}
-  .chip.me b{color:#fff;}
-  .chip .x{margin-left:7px; color:#b0413e; cursor:pointer; font-weight:800;}
+  .chip b{color:var(--gold);}
+  .chip.me{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .chip.me b{color:var(--gold-l);}
+  .chip .x{margin-left:7px; color:var(--seal); cursor:pointer; font-weight:800;}
   .row2{display:flex; gap:8px; margin-bottom:9px;}
-  .btn.small{padding:12px 0; font-size:14px; border-radius:10px;}
-  .btn.addBtn{background:var(--gold);} .btn.addBtn:active{background:#8f6e2e;}
+  .btn.small{padding:12px 0; font-size:14px; border-radius:12px;}
+  .btn.addBtn{background:var(--gold);} .btn.addBtn:active{background:#8c6e2e;}
+  .btn.plumB{background:var(--plum);} .btn.plumB:active{background:#57466f;}
 
   .answer{margin-top:14px;}
-  .answer .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--navy);
-    border-radius:12px; padding:16px; font-size:15px;}
-  .answer .box.g{border-left-color:var(--pink);}
-  .answer .box.p{border-left-color:var(--purple);}
+  .answer .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--ink);
+    border-radius:14px; padding:18px 17px; font-size:15px; box-shadow:0 2px 10px rgba(63,52,24,.05);
+    animation:fadeUp .35s ease;}
+  .answer .box.g{border-left-color:var(--seal);}
+  .answer .box.p{border-left-color:var(--plum);}
   .answer .box.o{border-left-color:var(--gold);}
-  .answer .t{font-weight:800; color:var(--navy); margin-bottom:9px; font-size:14px;}
-  .answer .box.g .t{color:var(--pink);} .answer .box.p .t{color:var(--purple);} .answer .box.o .t{color:var(--gold);}
+  .answer .t{font-weight:800; color:var(--ink); margin-bottom:10px; font-size:14px; letter-spacing:.3px;}
+  .answer .box.g .t{color:var(--seal);} .answer .box.p .t{color:var(--plum);} .answer .box.o .t{color:var(--gold);}
   .pair-head{font-size:13px; color:var(--ink); background:#fff; border:1px solid var(--line);
-    border-radius:8px; padding:8px 10px; margin-bottom:11px; text-align:center; font-weight:700;}
+    border-radius:10px; padding:9px 10px; margin-bottom:12px; text-align:center; font-weight:700;}
   .loading{color:var(--sub); font-size:14px; padding:10px 2px;}
   .dot{display:inline-block; animation:b 1.2s infinite;}
   .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
   @keyframes b{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
-  .reset{display:block; margin:22px auto 0; background:none; border:none; color:var(--sub);
+  .reset{display:block; margin:24px auto 0; background:none; border:none; color:var(--sub);
     font-size:13px; text-decoration:underline; cursor:pointer;}
-  footer{text-align:center; color:var(--sub); font-size:11.5px; margin-top:30px; line-height:1.7;}
-  footer b{color:var(--navy); font-weight:700;}
-  .err{color:#b0413e; font-size:13.5px; padding:10px 2px;}
+  footer{text-align:center; color:var(--sub); font-size:11.5px; margin-top:34px; line-height:1.8;}
+  .err{color:var(--seal); font-size:13.5px; padding:10px 2px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="badge">🍶 야장하기 좋은데이 사주풀이</div>
+    <div class="orn">✦ ✦ ✦</div>
+    <div class="han serif">四 柱 八 字</div>
     <h1>오늘의 사주 한 잔</h1>
     <p>생년월일만 넣으면, 진짜 사주로 풀어드려요</p>
+    <div class="divider"></div>
   </header>
 
   <div class="card" id="form">
     <div class="field">
-      <label>이름 <span style="color:var(--sub);font-weight:400">(선택)</span></label>
+      <label>이름 <span class="opt">(선택)</span></label>
       <input id="name" type="text" placeholder="닉네임도 좋아요" maxlength="20" />
     </div>
     <div class="field">
-      <label>성별 <span style="color:var(--sub);font-weight:400">(선택)</span></label>
+      <label>성별 <span class="opt">(선택)</span></label>
       <div class="seg" id="genderSeg">
         <button data-g="남">남</button><button data-g="여">여</button>
         <button data-g="" class="on">선택 안 함</button>
       </div>
     </div>
     <div class="field">
-      <label>생년월일 (양력)</label>
+      <label>생년월일 <span class="opt">(양력)</span> <span class="req">*</span></label>
       <input id="birth" type="date" min="1920-01-01" />
       <div class="hint">음력만 아는 경우는 음력→양력 변환 후 입력해 주세요.</div>
     </div>
@@ -140,18 +159,19 @@
       <select id="hour"><option value="unknown" selected>시간 모름</option></select>
       <div class="hint">시간을 모르면 ‘시간 모름’ 그대로 둬도 돼요.</div>
     </div>
-    <button class="btn" id="go">내 사주 보기 →</button>
+    <button class="btn" id="go">내 사주 보기</button>
     <div class="err" id="formErr" style="display:none"></div>
   </div>
 
   <div id="result">
-    <div class="saju-card">
+    <div class="saju-card"><div class="saju-inner">
+      <div class="stars">✦ · ✦ · ✦</div>
       <div class="date" id="rDate"></div>
       <div class="pillars" id="rPillars"></div>
       <div class="ilgan" id="rIlgan"></div>
       <div class="ohaeng" id="rOhaeng"></div>
       <div class="desc" id="rDesc"></div>
-    </div>
+    </div></div>
 
     <h2 class="sec">어떤 운이 궁금해요?</h2>
 
@@ -170,19 +190,19 @@
         </div>
       </div>
       <div class="field" style="margin-bottom:12px">
-        <label>상대 생년월일 (양력)</label>
+        <label>상대 생년월일 <span class="opt">(양력)</span></label>
         <input id="pBirth" type="date" min="1920-01-01" />
       </div>
       <div class="field" style="margin-bottom:14px">
         <label>상대 태어난 시간</label>
         <select id="pHour"><option value="unknown" selected>시간 모름</option></select>
       </div>
-      <button class="btn" id="goGung">궁합 보기 →</button>
+      <button class="btn" id="goGung">궁합 보기</button>
     </div>
 
     <button class="wide group" id="btnGroup">👥 단체 케미 판독 (최대 10명)</button>
     <div class="panel" id="gpanel">
-      <div class="p-title">모인 멤버를 추가해주세요 <span class="cnt" id="gCount">1/10</span></div>
+      <div class="p-title">함께한 멤버를 추가해주세요 <span class="cnt" id="gCount">1/10</span></div>
       <div class="chips" id="gChips"></div>
       <div class="row2">
         <input id="gName" type="text" placeholder="이름/별명" maxlength="10" style="flex:1" />
@@ -192,8 +212,8 @@
         <select id="gHour" style="flex:1"><option value="unknown" selected>시간 모름</option></select>
         <button class="btn small addBtn" id="gAdd" style="flex:.6">＋ 추가</button>
       </div>
-      <button class="btn" id="goGroup">🍻 단체 궁합 보기 →</button>
-      <button class="btn purpleB" id="goGroupPersona" style="margin-top:8px">🧬 에겐·테토 단체 판독 →</button>
+      <button class="btn" id="goGroup">🤝 단체 궁합 보기</button>
+      <button class="btn small plumB" id="goGroupPersona" style="margin-top:8px">🧬 에겐·테토 단체 판독</button>
       <div class="hint">전원의 생년월일만 있으면 돼요 · 분석에 10~30초 걸릴 수 있어요</div>
     </div>
 
@@ -202,8 +222,7 @@
   </div>
 
   <footer>
-    재미로 보는 콘텐츠예요 · 만 19세 이상<br>
-    <b>무학 좋은데이</b>와 함께 · 사주팔자는 한국천문연구원 만세력 기준으로 계산됩니다
+    재미로 보는 콘텐츠예요<br>사주팔자는 한국천문연구원 만세력 기준으로 계산됩니다
   </footer>
 </div>
 
@@ -233,7 +252,7 @@
 
   const CATS = ["총운","연애운","결혼운","금전운","직업운","건강운"];
   let payload=null; const cache={};
-  let groupMembers=[]; // '나' 제외 추가 멤버
+  let groupMembers=[];
 
   function dots(msg){ return `<span class="loading">${msg||'풀이 중'}<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>`; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -265,18 +284,18 @@
       document.getElementById('result').style.display='block';
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){ errEl.textContent=e.message; errEl.style.display='block'; }
-    finally{ btn.disabled=false; btn.textContent='내 사주 보기 →'; }
+    finally{ btn.disabled=false; btn.textContent='내 사주 보기'; }
   };
 
   function renderProfile(data){
     const s=data.saju; const order=['년주','월주','일주','시주'];
     document.getElementById('rDate').textContent =
-      `${payload.year}. ${String(payload.month).padStart(2,'0')}. ${String(payload.day).padStart(2,'0')}`
+      `${payload.year} · ${String(payload.month).padStart(2,'0')} · ${String(payload.day).padStart(2,'0')}`
       + (s.시간보정?`  ·  진태양시 ${s.시간보정.hour}:${String(s.시간보정.minute).padStart(2,'0')} 보정`:'');
     document.getElementById('rPillars').innerHTML = order.map(k=>{
       const p=s.pillars[k];
-      return p ? `<div class="pillar"><div class="hanja">${p.hanja}</div><div class="role">${k}</div><div class="kr">${p.hangul}</div></div>`
-               : `<div class="pillar"><div class="hanja" style="color:#c3cde0">—</div><div class="role">${k}</div><div class="kr">시간 모름</div></div>`;
+      return p ? `<div class="pillar"><div class="hanja serif">${p.hanja}</div><div class="role">${k}</div><div class="kr">${p.hangul}</div></div>`
+               : `<div class="pillar"><div class="hanja serif" style="color:#d8d2c2">—</div><div class="role">${k}</div><div class="kr">시간 모름</div></div>`;
     }).join('');
     document.getElementById('rIlgan').textContent = `일간 ${s.일간.hangul}${s.일간.hanja} · ${s.일간.오행}(${s.일간.음양})의 기운`;
     document.getElementById('rOhaeng').textContent = `오행 ▸ `+Object.entries(s.오행분포).map(([k,v])=>`${k} ${v}`).join('  ');
@@ -306,7 +325,6 @@
   document.getElementById('btnMonth').onclick = (e)=> fetchSection('이번달운세', e.currentTarget, {});
   document.getElementById('btnPersona').onclick = (e)=> fetchSection('에겐테토', e.currentTarget, {color:'p', loadMsg:'판독 중'});
 
-  // ── 1:1 궁합 ──
   document.getElementById('btnGung').onclick = (e)=>{
     const p=document.getElementById('partner'); const open=!p.classList.contains('show');
     clearActive(); hidePanels();
@@ -327,10 +345,9 @@
       if(data.partner){ head=`<div class="pair-head">나 ${data.saju.일간.hangul}${data.saju.일간.hanja} &nbsp;↔&nbsp; 상대 ${data.partner.일간.hangul}${data.partner.일간.hanja} &nbsp;·&nbsp; ${relation}</div>`; }
       ans.innerHTML = `<div class="box g"><div class="t">💞 ${relation} 궁합</div>${head}${paras(data.text)}</div>`;
     }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
-    finally{ btn.disabled=false; btn.textContent='궁합 보기 →'; }
+    finally{ btn.disabled=false; btn.textContent='궁합 보기'; }
   };
 
-  // ── 단체 케미 ──
   document.getElementById('btnGroup').onclick = (e)=>{
     const g=document.getElementById('gpanel'); const open=!g.classList.contains('show');
     clearActive(); hidePanels();
@@ -374,8 +391,8 @@
     }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
     finally{ btn.disabled=false; btn.textContent=doneTxt; }
   }
-  document.getElementById('goGroup').onclick = ()=> runGroup('단체궁합','goGroup','🍻 단체 궁합','o','🍻 단체 궁합 보기 →');
-  document.getElementById('goGroupPersona').onclick = ()=> runGroup('단체에겐테토','goGroupPersona','🧬 에겐·테토 단체 판독','p','🧬 에겐·테토 단체 판독 →');
+  document.getElementById('goGroup').onclick = ()=> runGroup('단체궁합','goGroup','🤝 단체 궁합','o','🤝 단체 궁합 보기');
+  document.getElementById('goGroupPersona').onclick = ()=> runGroup('단체에겐테토','goGroupPersona','🧬 에겐·테토 단체 판독','p','🧬 에겐·테토 단체 판독');
 
   document.getElementById('reset').onclick = ()=>{
     payload=null; groupMembers=[]; for(const k in cache) delete cache[k]; clearActive(); hidePanels();
