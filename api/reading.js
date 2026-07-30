@@ -129,17 +129,17 @@ function buildPrompt(section, saju, extra) {
   }
   if (section === '궁합') {
     const rel = extra.relation ? `두 사람 관계: ${extra.relation}` : '두 사람 관계: 미지정';
-    const inst = `'본인'과 '상대'의 궁합을 깊이 있고 재밌게 풀어줘. 아래 '궁합 힌트'(천간합·육합·충·오행 보완)를 근거로: ①첫인상으로 본 두 사람 케미 ②잘 맞는 점 2가지 ③부딪히기 쉬운 점과 그 해법(밉지 않게) ④이 관계의 장기적 흐름 ⑤관계를 좋게 만드는 꿀팁. ${extra.relation === '친구' || extra.relation === '동료' ? '연애보다 우정/케미 관점으로.' : '관계 성격에 맞게.'}`;
-    return `${SYSTEM}\n\n${rel}\n${sajuContext(saju, '본인')}\n\n${sajuContext(extra.partner, '상대')}\n\n[궁합 힌트]\n${extra.hint}\n\n요청: ${inst}`;
+    const inst = `'본인'과 '상대'의 궁합을 캐주얼하고 재밌게, 친구가 옆에서 호들갑 떨며 봐주듯 풀어줘. 대화 주제로 바로 던질 수 있는 문장이 많게. 아래 '궁합 힌트'와 '[에겐·테토/MBTI 고정값]'을 근거로: ①첫인상 케미를 임팩트 있게 선언 ②두 사람의 에겐·테토/MBTI 조합 케미 한 문단 — 고정값의 %와 MBTI를 반드시 본문에 표기하고 (예: "테토 82% ESFJ와 에겐 70% INFJ의 만남이라...") 그 조합이 만드는 티키타카를 재밌게 ③잘 맞는 점 2가지(합·보완 근거) ④부딪히기 쉬운 점과 해법(밉지 않게) ⑤**관계 유형별 한 줄 판정** — 연인으로 ★n/5, 친구로 ★n/5, 동료로 ★n/5, 각각 이유 한 줄씩 재밌게(한 문단 안에서 줄바꿈으로) ⑥마무리 꿀팁 한 줄. ${extra.relation === '친구' || extra.relation === '동료' ? '현재 관계가 친구/동료니 그 관점을 중심에 두되 별점 판정은 다 해줘.' : '관계 성격에 맞게.'}`;
+    return `${SYSTEM}\n\n${rel}\n${sajuContext(saju, '본인')}\n\n${sajuContext(extra.partner, '상대')}\n\n[궁합 힌트]\n${extra.hint}\n\n[에겐·테토/MBTI 고정값 — 숫자·MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: ${inst}`;
   }
   if (section === '에겐테토') {
-    return `${SYSTEM}\n\n${extra.who ? extra.who + '\n' : ''}${sajuContext(saju)}\n\n[판독 고정값 — 숫자와 MBTI는 절대 바꾸지 말 것]\n${extra.personaLine}\n\n요청: 요즘 유행하는 '에겐/테토' 판독을 사주로 해줬어. 위 고정값을 그대로 쓰되, '왜 그런 판정이 나왔는지'를 이 사주의 일간 기질·오행·십신과 엮어서 재밌게 풀어줘. 예: "부드러운 을목 기질에 인성까지 발달 — **따뜻한 마음의 에겐녀일 가능성 ${extra.egen}%**!" 같은 톤. ①첫 문단: 판정 결과를 임팩트 있게 선언 ②에겐/테토 판정의 사주적 근거 ③예상 MBTI 네 글자를 각각 사주 근거로 짧게 해설 ④이 성향이 연애·인간관계에서 어떻게 드러나는지 ⑤마지막 한 줄: 이건 재미로 보는 '사주 유사과학'이라는 걸 위트 있게. 성별을 모르면 '에겐형/테토형'으로 불러.`;
+    return `${SYSTEM}\n\n${extra.who ? extra.who + '\n' : ''}${sajuContext(saju)}\n\n[판독 고정값 — 숫자와 MBTI는 절대 바꾸지 말 것]\n${extra.personaLine}\n\n요청: 요즘 유행하는 '에겐/테토' 판독을 사주로 해줬어. 위 고정값을 그대로 쓰되, '왜 그런 판정이 나왔는지'를 이 사주의 일간 기질·오행·십신과 엮어서 재밌게 풀어줘. 예: "부드러운 을목 기질에 인성까지 발달 — **따뜻한 마음의 에겐녀일 가능성 ${extra.egen}%**!" 같은 톤. ①첫 문단: 판정 결과를 임팩트 있게 선언 — 에겐/테토 %와 예상 MBTI를 반드시 본문에 그대로 표기 ②에겐/테토 판정의 사주적 근거 ③예상 MBTI 네 글자를 각각 사주 근거로 짧게 해설 ④이 성향이 연애·인간관계에서 어떻게 드러나는지 ⑤마지막 한 줄: 이건 재미로 보는 '사주 유사과학'이라는 걸 위트 있게. 전체 톤은 캐주얼하게 — 밈·유행어 살짝 섞어도 좋고, 친구한테 판독 결과 읽어주며 놀리는 느낌으로. 성별을 모르면 '에겐형/테토형'으로 불러.`;
   }
   if (section === '단체궁합') {
-    return `${SYSTEM}\n\n[멤버 ${extra.n}명]\n${extra.memberBlock}\n\n[페어 케미 데이터 — 점수 높을수록 합이 좋음, '충'은 투닥거리는 자극 케미]\n${extra.pairBlock}\n\n요청: 이 ${extra.n}명이 지금 한자리에 모였어. 단체 케미를 재밌게 분석해줘. ①이 모임의 전체 분위기를 한두 문장으로(첫 문단, 임팩트 있게) ②**베스트 케미 TOP 3** — 어떤 페어인지와 이유(케미 점수·합·보완 근거) ③**환장의 조합** 1~2쌍 — 충이 있거나 점수가 낮은 페어를 밉지 않게 투닥 케미로 ④멤버별 오늘의 모임 롤 — 전원 한 명당 한 줄씩, 사주 기질 근거로(분위기메이커·중재 담당·총무각·리액션 장인·갑자기 진지·끝까지 생존 등 재밌는 롤명 자유롭게). 한 문단 안에서 줄바꿈으로 나열 ⑤총평 — 오늘 이 자리가 어떻게 흘러갈지 짧은 예언 + 꿀팁 하나. 사람 이름은 **볼드**로.`;
+    return `${SYSTEM}\n\n[멤버 ${extra.n}명]\n${extra.memberBlock}\n\n[페어 케미 데이터 — 점수 높을수록 합이 좋음, '충'은 투닥거리는 자극 케미]\n${extra.pairBlock}\n\n[멤버별 에겐·테토/MBTI 고정값 — 숫자·MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: 이 ${extra.n}명이 지금 한자리에 모였어. 단체 케미를 캐주얼하고 도발적으로(단, 밉지 않게) 분석해줘 — 읽자마자 서로 보여주고 놀리면서 대화 주제가 되게. ①이 모임의 전체 분위기를 한두 문장으로 임팩트 있게 ②**베스트 케미 TOP 3** — 어떤 페어인지와 이유(케미 점수·합·보완·MBTI 근거) ③**환장의 조합** 1~2쌍 — 충이 있거나 점수 낮은 페어를 투닥 케미로 ④**연인 케미 어워드** — 이 중 커플이 되면 제일 잘 어울릴 페어 1쌍(왜인지), 그리고 '친구로는 최고인데 연인 되면 파국'인 페어 1쌍(왜인지). 합충과 에겐·테토/MBTI 조합을 근거로, 놀리기 좋게 ⑤멤버별 오늘의 모임 롤 — 전원 한 명당 한 줄씩, 사주 기질 근거로 재밌는 롤명(분위기메이커·중재 담당·총무각·리액션 장인·갑자기 진지·끝까지 생존 등). 한 문단 안에서 줄바꿈으로 ⑥**이 조합이 같이 하면 잘 풀릴 일** 하나 — 여행·창업·스터디·운동·유튜브 등 중에서 이 멤버들 기질 조합에 제일 잘 맞는 걸 골라 이유와 함께 ⑦총평 — 오늘 이 자리가 어떻게 흘러갈지 짧은 예언 + 꿀팁 하나. 사람 이름은 **볼드**로.`;
   }
   if (section === '단체에겐테토') {
-    return `${SYSTEM}\n\n[멤버 ${extra.n}명 사주 요약]\n${extra.memberBlock}\n\n[판독 고정값 — 숫자와 MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: 멤버 전원의 에겐·테토 판독 카드를 순서대로 써줘. 한 명당: 첫 줄에 "**이름** — 에겐 xx% · 테토 yy% · 예상 MBTI ZZZZ", 이어서 2~3문장으로 사주 기질과 엮은 판정 이유를 재밌게(예: "화 기운 넘치는 병화 일간 — 확신의 테토형!"). 멤버 카드 사이는 빈 줄로 구분. 마지막 문단은 단체 총평: **테토 대장(${extra.tetoKing})**과 **에겐 대장(${extra.egenKing})**을 호명하고 이 모임의 균형을 위트 있게 + '재미로 보는 사주 유사과학' 디스클레이머 한 줄. 성별 모르는 사람은 '에겐형/테토형'으로.`;
+    return `${SYSTEM}\n\n[멤버 ${extra.n}명 사주 요약]\n${extra.memberBlock}\n\n[판독 고정값 — 숫자와 MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: 멤버 전원의 에겐·테토 판독 카드를 순서대로 써줘. 한 명당: 첫 줄에 "**이름** — 에겐 xx% · 테토 yy% · 예상 MBTI ZZZZ", 이어서 2~3문장으로 사주 기질과 엮은 판정 이유를 재밌게(예: "화 기운 넘치는 병화 일간 — 확신의 테토형!"). 멤버 카드 사이는 빈 줄로 구분. 마지막 문단은 단체 총평: **테토 대장(${extra.tetoKing})**과 **에겐 대장(${extra.egenKing})**을 호명하고, 멤버 간 MBTI 조합에서 나오는 재밌는 케미 포인트 한두 개(예: 극과 극이라 오히려 잘 맞는 페어, 판박이라 서로 답답해할 페어)를 짚고, 이 모임의 균형을 위트 있게 + '재미로 보는 사주 유사과학' 디스클레이머 한 줄. 전체 톤은 캐주얼하게, 서로 놀리기 좋은 문장 위주로. 성별 모르는 사람은 '에겐형/테토형'으로.`;
   }
   return `${SYSTEM}\n\n${extra.who ? extra.who + '\n' : ''}${sajuContext(saju)}\n\n요청: ${SECTION_PROMPT[section]}`;
 }
@@ -184,6 +184,7 @@ export default async function handler(req, res) {
           lines.push(pairLine(list[i].name, list[j].name, pairTags(list[i].saju, list[j].saju)));
         }
         extra.pairBlock = lines.join('\n');
+        extra.personaBlock = list.map((m) => personaLine(m.name, m.gender, personaMetrics(m.saju))).join('\n');
       } else {
         const metrics = list.map((m) => ({ ...m, pm: personaMetrics(m.saju) }));
         extra.personaBlock = metrics.map((m) => personaLine(m.name, m.gender, m.pm)).join('\n');
@@ -192,7 +193,7 @@ export default async function handler(req, res) {
         extra.egenKing = byTeto[byTeto.length - 1].name;
       }
       groupOut = { members: list.map((m) => ({ name: m.name, 일간: m.saju.일간 })) };
-      maxTok = 3000;
+      maxTok = 3300;
     } else {
       if (!year || !month || !day) { res.status(400).json({ error: '생년월일(year, month, day)은 필수입니다.' }); return; }
       saju = buildSaju({ year, month, day, hour, minute, hourUnknown: !!hourUnknown });
@@ -205,6 +206,8 @@ export default async function handler(req, res) {
         extra.partner = partnerSaju;
         extra.relation = relation || '';
         extra.hint = pairAnalysis(saju, partnerSaju);
+        extra.personaBlock = personaLine(name || '본인', gender || '', personaMetrics(saju)) + '\n'
+          + personaLine('상대', '', personaMetrics(partnerSaju));
       }
       if (section === '이번달운세') {
         const kst = new Date(Date.now() + 9 * 3600 * 1000);
