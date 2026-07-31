@@ -113,7 +113,7 @@ const SYSTEM = `너는 한국 명리학(사주팔자)에 빠삭한 사주 상담
 - 마크다운 제목(#)이나 불릿(-, ·) 기호는 쓰지 말고, 자연스러운 문단과 줄바꿈으로.`;
 
 const SECTION_PROMPT = {
-  profile: `이 사람의 '기본 성향'을 깊이 있게 풀어줘. ①일간이 상징하는 캐릭터와 타고난 기질 ②오행 균형이 만드는 강점 2가지와 은근한 약점 1~2가지 ③사람을 대할 때·일할 때 스타일(십신 근거) ④사람들이 느끼는 첫인상과, 알고 보면 반전인 숨은 매력.`,
+  profile: `이 사람의 '기본 성향'을 깊이 있게 풀어줘. ①일간이 상징하는 캐릭터와 타고난 기질 ②오행 균형이 만드는 강점 2가지와 은근한 약점 1~2가지 ③사람을 대할 때·일할 때 스타일(십신 근거) ④사람들이 느끼는 첫인상과, 알고 보면 반전인 숨은 매력 ⑤마지막 문단: [에겐·테토/MBTI 고정값]의 예상 MBTI와 에겐·테토 %를 본문에 그대로 표기하고(숫자·MBTI 절대 변경 금지), 왜 그 유형으로 읽히는지 사주 근거로 짧고 재밌게 — "사주로 유추하면 INFJ 느낌, 에겐 70%" 같은 톤.`,
   총운: `이 사람의 '총운(전체 흐름)'을 깊이 있게. ①지금 두드러지는 기운과 그 이유 ②흐름이 잘 풀리는 영역 2가지 ③조심할 영역 1~2가지(구체적으로) ④흐름을 살리는 실전 행동 팁 2가지.`,
   연애운: `이 사람의 '연애운'을 깊이 있게. ①연애 스타일과 그 사주적 이유 ②확 빠지는 포인트와 식는 포인트 ③잘 맞는 상대 유형(십신 근거로 구체적으로) ④요즘 인연의 흐름과 시기 ⑤연애 실전 팁 1가지.`,
   결혼운: `이 사람의 '결혼운'을 현실적으로 깊이 있게. ①결혼에 어울리는 태도와 시기 경향 ②배우자 상(십신 근거) ③결혼 생활이 안정되는 포인트와 흔들리기 쉬운 포인트 ④현실 조언 1가지.`,
@@ -129,7 +129,7 @@ function buildPrompt(section, saju, extra) {
   }
   if (section === '궁합') {
     const rel = extra.relation ? `두 사람 관계: ${extra.relation}` : '두 사람 관계: 미지정';
-    const inst = `'본인'과 '상대'의 궁합을 캐주얼하고 재밌게, 친구가 옆에서 호들갑 떨며 봐주듯 풀어줘. 대화 주제로 바로 던질 수 있는 문장이 많게. 아래 '궁합 힌트'와 '[에겐·테토/MBTI 고정값]'을 근거로: ①첫인상 케미를 임팩트 있게 선언 ②두 사람의 에겐·테토/MBTI 조합 케미 한 문단 — 고정값의 %와 MBTI를 반드시 본문에 표기하고 (예: "테토 82% ESFJ와 에겐 70% INFJ의 만남이라...") 그 조합이 만드는 티키타카를 재밌게 ③잘 맞는 점 2가지(합·보완 근거) ④부딪히기 쉬운 점과 해법(밉지 않게) ⑤**관계 유형별 한 줄 판정** — 연인으로 ★n/5, 친구로 ★n/5, 동료로 ★n/5, 각각 이유 한 줄씩 재밌게(한 문단 안에서 줄바꿈으로) ⑥마무리 꿀팁 한 줄. ${extra.relation === '친구' || extra.relation === '동료' ? '현재 관계가 친구/동료니 그 관점을 중심에 두되 별점 판정은 다 해줘.' : '관계 성격에 맞게.'}`;
+    const inst = `'본인'과 '상대'의 궁합을 캐주얼하고 재밌게, 친구가 옆에서 호들갑 떨며 봐주듯 풀어줘. 대화 주제로 바로 던질 수 있는 문장이 많게. 아래 '궁합 힌트'와 '[에겐·테토/MBTI 고정값]'을 근거로: ①첫인상 케미를 임팩트 있게 선언 ②두 사람의 에겐·테토/MBTI 조합 케미 한 문단 — 고정값의 %와 MBTI를 반드시 본문에 표기하고 (예: "테토 82% ESFJ와 에겐 70% INFJ의 만남이라...") 그 조합이 만드는 티키타카를 재밌게 ③잘 맞는 점 2가지(합·보완 근거) ④부딪히기 쉬운 점과 해법(밉지 않게) ⑤**궁합 별점** — 먼저 지금 선택한 관계 기준 총점을 ★n/5(0.5 단위 가능)로 매기고 이유 한 줄, 이어서 나머지 관계(연인·친구·동료 중 해당 없는 것들)로 봤을 때의 별점도 각각 한 줄씩 재밌게(한 문단 안에서 줄바꿈으로 — "친구로는 ★5인데 연인 되면 ★2, 서로 못 잡아먹어서" 같은 대화거리가 되게) ⑥마무리 꿀팁 한 줄. ${extra.relation === '친구' || extra.relation === '동료' ? '현재 관계가 친구/동료니 그 관점 중심으로.' : '관계 성격에 맞게.'}`;
     return `${SYSTEM}\n\n${rel}\n${sajuContext(saju, '본인')}\n\n${sajuContext(extra.partner, '상대')}\n\n[궁합 힌트]\n${extra.hint}\n\n[에겐·테토/MBTI 고정값 — 숫자·MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: ${inst}`;
   }
   if (section === '에겐테토') {
@@ -141,7 +141,7 @@ function buildPrompt(section, saju, extra) {
   if (section === '단체에겐테토') {
     return `${SYSTEM}\n\n[멤버 ${extra.n}명 사주 요약]\n${extra.memberBlock}\n\n[판독 고정값 — 숫자와 MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: 멤버 전원의 에겐·테토 판독 카드를 순서대로 써줘. 한 명당: 첫 줄에 "**이름** — 에겐 xx% · 테토 yy% · 예상 MBTI ZZZZ", 이어서 2~3문장으로 사주 기질과 엮은 판정 이유를 재밌게(예: "화 기운 넘치는 병화 일간 — 확신의 테토형!"). 멤버 카드 사이는 빈 줄로 구분. 마지막 문단은 단체 총평: **테토 대장(${extra.tetoKing})**과 **에겐 대장(${extra.egenKing})**을 호명하고, 멤버 간 MBTI 조합에서 나오는 재밌는 케미 포인트 한두 개(예: 극과 극이라 오히려 잘 맞는 페어, 판박이라 서로 답답해할 페어)를 짚고, 이 모임의 균형을 위트 있게 + '재미로 보는 사주 유사과학' 디스클레이머 한 줄. 전체 톤은 캐주얼하게, 서로 놀리기 좋은 문장 위주로. 성별 모르는 사람은 '에겐형/테토형'으로.`;
   }
-  return `${SYSTEM}\n\n${extra.who ? extra.who + '\n' : ''}${sajuContext(saju)}\n\n요청: ${SECTION_PROMPT[section]}`;
+  return `${SYSTEM}\n\n${extra.who ? extra.who + '\n' : ''}${sajuContext(saju)}\n\n${extra.personaBlock ? '[에겐·테토/MBTI 고정값 — 숫자·MBTI는 절대 바꾸지 말 것]\n' + extra.personaBlock + '\n\n' : ''}요청: ${SECTION_PROMPT[section]}`;
 }
 
 export default async function handler(req, res) {
@@ -215,6 +215,9 @@ export default async function handler(req, res) {
         extra.monthLabel = `${M}월`;
         const cur = buildSaju({ year: Y, month: M, day: D });
         extra.luck = `${Y}년 세운 ${cur.pillars.년주.hangul}(${cur.pillars.년주.hanja}) · 이번 달 월운 ${cur.pillars.월주.hangul}(${cur.pillars.월주.hanja})`;
+      }
+      if (section === 'profile') {
+        extra.personaBlock = personaLine(name || '이 사람', gender || '', personaMetrics(saju));
       }
       if (section === '에겐테토') {
         const pm = personaMetrics(saju);
