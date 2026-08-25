@@ -71,6 +71,8 @@
   .ilgan{margin-top:14px; font-size:13.5px; color:var(--navy); font-weight:800;}
   .ohaeng{display:flex; justify-content:center; flex-wrap:wrap; gap:5px; margin-top:9px;}
   .el-chip{font-size:11.5px; font-weight:700; padding:3px 10px; border-radius:999px;}
+  .subh{display:block; color:var(--navy); font-weight:800; font-size:14px; margin:16px 0 6px; letter-spacing:.2px;}
+  p > .subh:first-child{margin-top:2px;}
   .desc{font-size:15px; margin:16px 4px 6px; text-align:left;}
   .desc p, .box p{margin:0 0 12px;} .desc p:last-child, .box p:last-child{margin:0;}
 
@@ -80,6 +82,8 @@
   .wide{width:100%; padding:15px; border-radius:14px; font-size:15.5px; font-weight:800; cursor:pointer;
     margin-bottom:10px; transition:transform .08s, box-shadow .15s;}
   .wide:active{transform:scale(.985);}
+  .wide.today{background:var(--blue); color:#fff; border:none;}
+  .wide.today.on{box-shadow:0 0 0 3px rgba(0,78,168,.28);}
   .wide.month{background:var(--navy); color:#fff; border:none;}
   .wide.month.on{box-shadow:0 0 0 3px rgba(0,48,135,.28);}
   .wide.persona{background:var(--plum); color:#fff; border:none;}
@@ -185,6 +189,7 @@
 
     <h2 class="sec">어떤 운이 궁금해요?</h2>
 
+    <button class="wide today" id="btnToday">☀️ 오늘의 운세 — 오늘 일진으로 보는 하루</button>
     <button class="wide month" id="btnMonth"></button>
     <div class="cats" id="cats"></div>
     <button class="wide persona" id="btnPersona">🧬 에겐·테토 판독기 — 나는 에겐? 테토?</button>
@@ -273,7 +278,18 @@
 
   function dots(msg){ return `<span class="loading">${msg||'풀이 중'}<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>`; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
-  function fmt(p){ return esc(p).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
+  function kdate(){ return new Date(Date.now()+9*3600e3).toISOString().slice(0,10); }
+  function fmt(p){
+    const lines = esc(p).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').split('\n');
+    let out='', needBr=false;
+    for(const ln of lines){
+      const t=ln.trim();
+      if(t.startsWith('◆')){ out+=`<span class="subh">${t}</span>`; needBr=false; }
+      else if(t===''){ needBr=false; }
+      else { out+=(needBr?'<br>':'')+ln; needBr=true; }
+    }
+    return out;
+  }
   function paras(text){ return text.split(/\n{2,}/).map(p=>`<p>${fmt(p)}</p>`).join(''); }
   function box(title,text,color){ return `<div class="box${color?' '+color:''}"><div class="t">${title}</div>${paras(text)}</div>`; }
 
@@ -328,19 +344,21 @@
 
   function clearActive(){ document.querySelectorAll('.cat,.wide').forEach(x=>x.classList.remove('on')); }
   function hidePanels(){ document.getElementById('partner').classList.remove('show'); document.getElementById('gpanel').classList.remove('show'); }
-  function labelOf(section){ return section==='이번달운세'?`${MONTH}월 운세`: section==='에겐테토'?'🧬 에겐·테토 판독':section; }
+  function labelOf(section){ return section==='이번달운세'?`${MONTH}월 운세`: section==='에겐테토'?'🧬 에겐·테토 판독': section==='오늘의운세'?'☀️ 오늘의 운세':section; }
 
   async function fetchSection(section, btn, opt){
     clearActive(); btn.classList.add('on'); hidePanels();
     const ans=document.getElementById('answer');
-    if(cache[section]){ ans.innerHTML=box(labelOf(section), cache[section], opt.color); return; }
+    const ck = section==='오늘의운세' ? section+'|'+kdate() : section;
+    if(cache[ck]){ ans.innerHTML=box(labelOf(section), cache[ck], opt.color); return; }
     ans.innerHTML=dots(opt.loadMsg);
     try{
       const data=await callAPI({section});
-      cache[section]=data.text; ans.innerHTML=box(labelOf(section), data.text, opt.color);
+      cache[ck]=data.text; ans.innerHTML=box(labelOf(section), data.text, opt.color);
     }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
   }
 
+  document.getElementById('btnToday').onclick = (e)=> fetchSection('오늘의운세', e.currentTarget, {loadMsg:'오늘 일진 보는 중'});
   document.getElementById('btnMonth').onclick = (e)=> fetchSection('이번달운세', e.currentTarget, {});
   document.getElementById('btnPersona').onclick = (e)=> fetchSection('에겐테토', e.currentTarget, {color:'p', loadMsg:'판독 중'});
 

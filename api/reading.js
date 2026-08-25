@@ -110,7 +110,8 @@ const SYSTEM = `너는 한국 명리학(사주팔자)에 빠삭한 사주 상담
 - 반드시 4~5개의 문단으로 나눠 쓰고, 문단 사이는 빈 줄(엔터 두 번)로 띄워. 문단당 3~4문장.
 - 십신·오행·합충의 '구체적 근거'를 들어 디테일하고 깊이 있게 써. "어 이거 진짜 나네" 소리가 나오게. 두루뭉술 금지.
 - 꼭 강조할 핵심 문구는 **볼드** 가능 (한 문단에 최대 1번).
-- 마크다운 제목(#)이나 불릿(-, ·) 기호는 쓰지 말고, 자연스러운 문단과 줄바꿈으로.`;
+- 마크다운 제목(#)이나 불릿(-, ·) 기호는 쓰지 말고, 자연스러운 문단과 줄바꿈으로.
+- 주제가 바뀌는 문단 앞에는 "◆ 소제목" 형식의 짧은 라벨 줄을 한 줄 따로 넣어. (예: 기본 성향이면 "◆ 타고난 기질", "◆ 예상 MBTI", "◆ 에겐력·테토력 측정") 소제목은 3~8글자로 짧고 위트 있게, 매 문단마다는 말고 흐름이 꺾일 때만.`;
 
 const SECTION_PROMPT = {
   profile: `이 사람의 '기본 성향'을 깊이 있게 풀어줘. ①일간이 상징하는 캐릭터와 타고난 기질 ②오행 균형이 만드는 강점 2가지와 은근한 약점 1~2가지 ③사람을 대할 때·일할 때 스타일(십신 근거) ④사람들이 느끼는 첫인상과, 알고 보면 반전인 숨은 매력 ⑤마지막 문단: [에겐·테토/MBTI 고정값]의 예상 MBTI와 에겐·테토 %를 본문에 그대로 표기하고(숫자·MBTI 절대 변경 금지), 왜 그 유형으로 읽히는지 사주 근거로 짧고 재밌게 — "사주로 유추하면 INFJ 느낌, 에겐 70%" 같은 톤.`,
@@ -123,6 +124,10 @@ const SECTION_PROMPT = {
 };
 
 function buildPrompt(section, saju, extra) {
+  if (section === '오늘의운세') {
+    const inst = `이 사람의 '오늘의 운세'를 짧고 경쾌하게 풀어줘. 본인 일간과 오늘 일진의 관계(생·극·합·충, 오행 흐름)를 근거로: ①오늘의 전체 기운 ②오늘 잘 풀릴 일 ③조심할 것 ④행운 포인트(색·숫자·방향을 콕 집어서). 네 부분 각각 앞에 ◆ 소제목을 붙이고, 다른 섹션보다 짧게 — 부분당 2~3문장이면 충분해.`;
+    return `${SYSTEM}\n\n${sajuContext(saju)}\n\n${extra.todayLine}\n\n요청: ${inst}`;
+  }
   if (section === '이번달운세') {
     const inst = `이 사람의 '${extra.monthLabel} 운세'를 깊이 있게 풀어줘. 아래 '현재 운'이 타고난 원국과 어떻게 맞물리는지 근거로: ①이번 달 전체 분위기와 이유 ②다가오는 기회 2가지(어느 영역인지 구체적으로) ③조심할 것 2가지(돈·관계·건강·말실수 등 구체적으로) ④이번 달을 잘 보내는 행동 팁 2가지.`;
     return `${SYSTEM}\n\n${sajuContext(saju)}\n\n[현재 운] ${extra.luck}\n\n요청: ${inst}`;
@@ -153,7 +158,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const { year, month, day, hour, minute, hourUnknown, gender, name, relation, section = 'profile', partner, members } = body;
 
-    const ALLOWED = ['profile','이번달운세','총운','연애운','결혼운','금전운','직업운','건강운','궁합','에겐테토','단체궁합','단체에겐테토'];
+    const ALLOWED = ['profile','오늘의운세','이번달운세','총운','연애운','결혼운','금전운','직업운','건강운','궁합','에겐테토','단체궁합','단체에겐테토'];
     if (!ALLOWED.includes(section)) { res.status(400).json({ error: `알 수 없는 항목: ${section}` }); return; }
 
     const isGroup = section === '단체궁합' || section === '단체에겐테토';
@@ -208,6 +213,12 @@ export default async function handler(req, res) {
         extra.hint = pairAnalysis(saju, partnerSaju);
         extra.personaBlock = personaLine(name || '본인', gender || '', personaMetrics(saju)) + '\n'
           + personaLine('상대', '', personaMetrics(partnerSaju));
+      }
+      if (section === '오늘의운세') {
+        const kst = new Date(Date.now() + 9 * 3600 * 1000);
+        const Y = kst.getUTCFullYear(), M = kst.getUTCMonth() + 1, D = kst.getUTCDate();
+        const today = buildSaju({ year: Y, month: M, day: D });
+        extra.todayLine = `[오늘] ${Y}-${String(M).padStart(2, '0')}-${String(D).padStart(2, '0')} · 일진 ${today.pillars.일주.hangul}(${today.pillars.일주.hanja})`;
       }
       if (section === '이번달운세') {
         const kst = new Date(Date.now() + 9 * 3600 * 1000);
