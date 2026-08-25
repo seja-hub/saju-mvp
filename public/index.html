@@ -128,6 +128,14 @@
   .btn.small{padding:12px 0; font-size:14px; border-radius:12px;}
   .btn.addBtn{background:var(--blue);} .btn.addBtn:active{background:var(--blue-d);}
   .btn.plumB{background:var(--plum);} .btn.plumB:active{background:#4a4c99;}
+  .btn.payB{background:#0e7a5f;} .btn.payB:active{background:#0a5c48;}
+
+  .paybars{margin:2px 0 14px;}
+  .payrow{display:flex; align-items:center; gap:8px; margin:6px 0;}
+  .payname{width:64px; font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .paytrack{flex:1; height:14px; background:#eef1f7; border-radius:7px; overflow:hidden;}
+  .payfill{display:block; height:100%; border-radius:7px; transition:width .5s ease;}
+  .paypct{width:40px; text-align:right; font-size:12.5px; font-weight:800; color:var(--navy);}
 
   .answer{margin-top:14px;}
   .answer .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--navy);
@@ -241,6 +249,7 @@
       </div>
       <button class="btn" id="goGroup">🤝 단체 궁합 보기</button>
       <button class="btn small plumB" id="goGroupPersona" style="margin-top:8px">🧬 에겐·테토 단체 판독</button>
+      <button class="btn small payB" id="goGroupPay" style="margin-top:8px">💸 오늘 술값의 귀인은?</button>
       <div class="hint">전원의 생년월일만 있으면 돼요 · 분석에 10~30초 걸릴 수 있어요</div>
     </div>
 
@@ -425,24 +434,35 @@
     document.getElementById('gHour').value='unknown'; document.getElementById('gGender').value='';
     ans.innerHTML=''; refreshChips();
   };
+  const PAY_PAL=['#004EA8','#c14953','#0e7a5f','#e0a63c','#5d5fb8','#1f8fa8','#8d5fb0','#b96a2e','#4a6fa5','#68737d'];
+  function groupResult(title, d, color){
+    let chart='';
+    if(d.splits && d.splits.length){
+      chart = '<div class="paybars">'+d.splits.map((s,i)=>
+        `<div class="payrow"><span class="payname">${esc(s.name)}</span><span class="paytrack"><span class="payfill" style="width:${s.percent}%;background:${PAY_PAL[i%PAY_PAL.length]}"></span></span><span class="paypct">${s.percent}%</span></div>`).join('')+'</div>';
+    }
+    return `<div class="box${color?' '+color:''}"><div class="t">${title}</div>${chart}${paras(d.text)}</div>`;
+  }
   async function runGroup(section, btnId, title, color, doneTxt){
     const ans=document.getElementById('answer');
     const members=[{ name:payload.name||'나', gender, year:payload.year, month:payload.month, day:payload.day,
       hour:payload.hour, minute:0, hourUnknown:payload.hourUnknown }, ...groupMembers];
     if(members.length<2){ ans.innerHTML='<div class="err">멤버를 1명 이상 추가해 주세요. (본인 포함 2~10명)</div>'; return; }
-    const ck=section+'|'+JSON.stringify(members);
-    if(cache[ck]){ ans.innerHTML=box(title, cache[ck], color); return; }
+    const ck=section+'|'+JSON.stringify(members)+(section==='술값귀인'?'|'+kdate():'');
+    if(cache[ck]){ ans.innerHTML=groupResult(title, cache[ck], color); return; }
     const btn=document.getElementById(btnId); btn.disabled=true;
     ans.innerHTML=dots(`${members.length}명 분석 중 (10~30초)`);
     try{
       const data=await callAPI({section, members});
-      cache[ck]=data.text; ans.innerHTML=box(title, data.text, color);
+      cache[ck]={text:data.text, splits:data.splits||null};
+      ans.innerHTML=groupResult(title, cache[ck], color);
       ans.scrollIntoView({behavior:'smooth',block:'start'});
     }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
     finally{ btn.disabled=false; btn.textContent=doneTxt; }
   }
   document.getElementById('goGroup').onclick = ()=> runGroup('단체궁합','goGroup','🤝 단체 궁합','o','🤝 단체 궁합 보기');
   document.getElementById('goGroupPersona').onclick = ()=> runGroup('단체에겐테토','goGroupPersona','🧬 에겐·테토 단체 판독','p','🧬 에겐·테토 단체 판독');
+  document.getElementById('goGroupPay').onclick = ()=> runGroup('술값귀인','goGroupPay','💸 오늘 술값의 귀인','o','💸 오늘 술값의 귀인은?');
 
   document.getElementById('reset').onclick = ()=>{
     payload=null; groupMembers=[]; for(const k in cache) delete cache[k]; clearActive(); hidePanels();

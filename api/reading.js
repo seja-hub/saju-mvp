@@ -97,6 +97,27 @@ function personaLine(name, gender, m) {
   const suffix = gender === '남' ? `${lean}남` : gender === '여' ? `${lean}녀` : `${lean}형`;
   return `${name}: 에겐 ${m.egen}% / 테토 ${m.teto}% → ${suffix} 판정 / 예상 MBTI: ${m.mbti}`;
 }
+// ── 술값귀인: 점수 비례 지분 배분 (합계 100%, 1인 최소 5% 보장) ──
+function allocPercents(scores) {
+  const MIN = 5, n = scores.length;
+  const pct = new Array(n).fill(0), fixed = new Array(n).fill(false);
+  for (let pass = 0; pass <= n; pass++) {
+    const free = pct.map((_, i) => i).filter((i) => !fixed[i]);
+    if (!free.length) break;
+    const budget = 100 - MIN * (n - free.length);
+    const ft = free.reduce((a, i) => a + scores[i], 0);
+    const shares = free.map((i) => (ft > 0 ? (budget * scores[i]) / ft : budget / free.length));
+    const low = free.filter((_, k) => shares[k] < MIN);
+    if (low.length) { low.forEach((i) => { fixed[i] = true; pct[i] = MIN; }); continue; }
+    const floors = shares.map(Math.floor);
+    const left = budget - floors.reduce((a, b) => a + b, 0);
+    free.forEach((i, k) => { pct[i] = floors[k]; });
+    const order = free.map((i, k) => ({ i, frac: shares[k] - floors[k] })).sort((a, b) => b.frac - a.frac);
+    for (let j = 0; j < left; j++) pct[order[j % order.length].i]++;
+    break;
+  }
+  return pct;
+}
 
 const SYSTEM = `너는 한국 명리학(사주팔자)에 빠삭한 사주 상담가야. 사람들에게 재미로 봐주는 콘텐츠를 쓴다.
 
@@ -143,6 +164,9 @@ function buildPrompt(section, saju, extra) {
   if (section === '단체궁합') {
     return `${SYSTEM}\n\n[멤버 ${extra.n}명]\n${extra.memberBlock}\n\n[페어 케미 데이터 — 점수 높을수록 합이 좋음, '충'은 투닥거리는 자극 케미]\n${extra.pairBlock}\n\n[멤버별 에겐·테토/MBTI 고정값 — 숫자·MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: 이 ${extra.n}명이 지금 한자리에 모였어. 단체 케미를 캐주얼하고 도발적으로(단, 밉지 않게) 분석해줘 — 읽자마자 서로 보여주고 놀리면서 대화 주제가 되게. ①이 모임의 전체 분위기를 한두 문장으로 임팩트 있게 ②**베스트 케미 TOP 3** — 어떤 페어인지와 이유(케미 점수·합·보완·MBTI 근거) ③**환장의 조합** 1~2쌍 — 충이 있거나 점수 낮은 페어를 투닥 케미로 ④**연인 케미 어워드** — 이 중 커플이 되면 제일 잘 어울릴 페어 1쌍(왜인지), 그리고 '친구로는 최고인데 연인 되면 파국'인 페어 1쌍(왜인지). 합충과 에겐·테토/MBTI 조합을 근거로, 놀리기 좋게. 단, 연인 케미 어워드는 성별이 확인된 남녀 페어 중에서만 선정하고(해당 페어가 없으면 이 어워드는 재치 있게 스킵), 동성 페어나 성별 미상이 낀 페어는 연인 어워드 대신 '환상의 절친'·'의리 케미' 같은 우정 어워드로 다뤄 ⑤멤버별 오늘의 모임 롤 — 전원 한 명당 한 줄씩, 사주 기질 근거로 재밌는 롤명(분위기메이커·중재 담당·총무각·리액션 장인·갑자기 진지·끝까지 생존 등). 한 문단 안에서 줄바꿈으로 ⑥**이 조합이 같이 하면 잘 풀릴 일** 하나 — 여행·창업·스터디·운동·유튜브 등 중에서 이 멤버들 기질 조합에 제일 잘 맞는 걸 골라 이유와 함께 ⑦총평 — 오늘 이 자리가 어떻게 흘러갈지 짧은 예언 + 꿀팁 하나. 사람 이름은 **볼드**로.`;
   }
+  if (section === '술값귀인') {
+    return `${SYSTEM}\n\n[멤버 ${extra.n}명]\n${extra.memberBlock}\n\n${extra.todayLine}\n\n[멤버별 에겐·테토/MBTI 고정값 — 숫자·MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n[오늘의 술값 부담 지분 — 재성·오행·테토지수·오늘 일진으로 확정 계산된 고정값. 절대 바꾸지 말 것]\n${extra.splitBlock}\n\n요청: 오늘 이 모임의 '술값의 귀인' 발표를 재밌게 써줘. ①오프닝: 지분 1위 **${extra.topName}**을(를) "오늘의 귀인"으로 임팩트 있게 호명하고, 오늘 일진 기운과 엮어 한두 문장으로 왜 오늘 지갑이 열리는 날인지 선언 ②이어서 멤버 전원을 지분 높은 순서대로 한 명씩: 첫 줄은 "**이름** — 오늘의 부담 지분 nn%" (위 고정 지분 숫자를 그대로, 절대 바꾸지 말 것), 그 아래 사주(재성·오행)·예상 MBTI·에겐테토 근거로 '오늘 이 사람이 내야 하는 이유'를 딱 2문장, 밉지 않게 놀리듯 재밌게. 멤버 카드 사이는 빈 줄 ③마지막 한 줄: 실제 정산과는 무관한 재미 콘텐츠라는 디스클레이머를 위트 있게.`;
+  }
   if (section === '단체에겐테토') {
     return `${SYSTEM}\n\n[멤버 ${extra.n}명 사주 요약]\n${extra.memberBlock}\n\n[판독 고정값 — 숫자와 MBTI는 절대 바꾸지 말 것]\n${extra.personaBlock}\n\n요청: 멤버 전원의 에겐·테토 판독 카드를 순서대로 써줘. 한 명당: 첫 줄에 "**이름** — 에겐 xx% · 테토 yy% · 예상 MBTI ZZZZ", 이어서 2~3문장으로 사주 기질과 엮은 판정 이유를 재밌게(예: "화 기운 넘치는 병화 일간 — 확신의 테토형!"). 멤버 카드 사이는 빈 줄로 구분. 마지막 문단은 단체 총평: **테토 대장(${extra.tetoKing})**과 **에겐 대장(${extra.egenKing})**을 호명하고, 멤버 간 MBTI 조합에서 나오는 재밌는 케미 포인트 한두 개(예: 극과 극이라 오히려 잘 맞는 페어, 판박이라 서로 답답해할 페어)를 짚고, 이 모임의 균형을 위트 있게 + '재미로 보는 사주 유사과학' 디스클레이머 한 줄. 전체 톤은 캐주얼하게, 서로 놀리기 좋은 문장 위주로. 성별 모르는 사람은 '에겐형/테토형'으로.`;
   }
@@ -158,10 +182,10 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const { year, month, day, hour, minute, hourUnknown, gender, name, relation, section = 'profile', partner, members } = body;
 
-    const ALLOWED = ['profile','오늘의운세','이번달운세','총운','연애운','결혼운','금전운','직업운','건강운','궁합','에겐테토','단체궁합','단체에겐테토'];
+    const ALLOWED = ['profile','오늘의운세','이번달운세','총운','연애운','결혼운','금전운','직업운','건강운','궁합','에겐테토','단체궁합','단체에겐테토','술값귀인'];
     if (!ALLOWED.includes(section)) { res.status(400).json({ error: `알 수 없는 항목: ${section}` }); return; }
 
-    const isGroup = section === '단체궁합' || section === '단체에겐테토';
+    const isGroup = section === '단체궁합' || section === '단체에겐테토' || section === '술값귀인';
     const extra = { who: [name ? `이름: ${name}` : '', gender ? `성별: ${gender}` : ''].filter(Boolean).join(' / ') };
     let saju = null, partnerSaju = null, groupOut = null;
     let maxTok = 2400;
@@ -190,6 +214,26 @@ export default async function handler(req, res) {
         }
         extra.pairBlock = lines.join('\n');
         extra.personaBlock = list.map((m) => personaLine(m.name, m.gender, personaMetrics(m.saju))).join('\n');
+      } else if (section === '술값귀인') {
+        const kst = new Date(Date.now() + 9 * 3600 * 1000);
+        const Y = kst.getUTCFullYear(), M = kst.getUTCMonth() + 1, D = kst.getUTCDate();
+        const today = buildSaju({ year: Y, month: M, day: D });
+        const GEN = { 목: '화', 화: '토', 토: '금', 금: '수', 수: '목' };
+        const todayEl = today.일간.오행;
+        const metrics = list.map((m) => ({ ...m, pm: personaMetrics(m.saju) }));
+        const scores = metrics.map((m) => {
+          const s = m.saju;
+          const jae = [...s.십신_천간, ...s.십신_지지].filter((g) => g.십신 === '정재' || g.십신 === '편재').length;
+          let sc = jae * 3 + s.오행분포.토 + s.오행분포.금 + m.pm.teto / 20;
+          if (GEN[todayEl] === s.일간.오행) sc += 2; // 오늘 일진의 오행이 일간을 생(生)
+          return sc;
+        });
+        const percents = allocPercents(scores);
+        extra.todayLine = `[오늘] ${Y}-${String(M).padStart(2, '0')}-${String(D).padStart(2, '0')} · 일진 ${today.pillars.일주.hangul}(${today.pillars.일주.hanja})`;
+        extra.personaBlock = metrics.map((m) => personaLine(m.name, m.gender, m.pm)).join('\n');
+        extra.splits = metrics.map((m, i) => ({ name: m.name, percent: percents[i] }));
+        extra.splitBlock = extra.splits.map((s) => `${s.name}: ${s.percent}%`).join('\n');
+        extra.topName = extra.splits.reduce((a, b) => (b.percent > a.percent ? b : a)).name;
       } else {
         const metrics = list.map((m) => ({ ...m, pm: personaMetrics(m.saju) }));
         extra.personaBlock = metrics.map((m) => personaLine(m.name, m.gender, m.pm)).join('\n');
@@ -259,6 +303,7 @@ export default async function handler(req, res) {
     if (saju) out.saju = { pillars: saju.pillars, 일간: saju.일간, 오행분포: saju.오행분포, 시간보정: saju.시간보정, 시간모름: saju.시간모름 };
     if (partnerSaju) out.partner = { 일간: partnerSaju.일간, pillars: partnerSaju.pillars, 시간모름: partnerSaju.시간모름 };
     if (groupOut) out.group = groupOut;
+    if (extra.splits) out.splits = extra.splits;
     res.status(200).json(out);
   } catch (e) {
     console.error('[reading] error', e);
