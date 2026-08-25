@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>오늘의 사주 한 잔</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  :root{
+    --ink:#1a2233; --ink-d:#101828; --paper:#f2f5fa; --card:#ffffff;
+    --navy:#003087; --navy-d:#002261; --blue:#004EA8; --blue-d:#003c7e; --blue-l:#9dbde4;
+    --seal:#c14953; --plum:#5d5fb8;
+    --sub:#65718a; --line:#dbe3f0; --field:#f7f9fd;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  input,select,button,textarea{font-family:inherit;}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    background-image:radial-gradient(circle at 50% -10%, #ffffff 0%, var(--paper) 60%);
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.7; padding:0 0 52px;}
+  .serif{font-family:"Apple SD Gothic Neo","Noto Serif KR",Georgia,serif;}
+  .wrap{max-width:440px; margin:0 auto; padding:0 18px;}
+
+  header{text-align:center; padding:38px 0 20px;}
+  .orn{color:var(--blue); font-size:12px; letter-spacing:8px; font-weight:600;}
+  .han{color:var(--navy); font-size:14px; letter-spacing:10px; margin:8px 0 10px; font-weight:700;}
+  header h1{font-size:28px; margin:0 0 8px; font-weight:800; letter-spacing:-.5px; color:var(--navy);}
+  header p{margin:0; color:var(--sub); font-size:13.5px;}
+  .divider{width:44px; height:1px; background:var(--blue-l); margin:16px auto 0; position:relative;}
+  .divider::after{content:"◆"; position:absolute; top:-7px; left:50%; transform:translateX(-50%) scale(.5); color:var(--blue);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:20px;
+    padding:24px 20px; margin:16px 0; box-shadow:0 2px 14px rgba(0,48,135,.06);}
+  label{display:block; font-size:12.5px; font-weight:700; margin:0 0 7px; color:var(--ink); letter-spacing:.3px;}
+  label .opt{color:var(--sub); font-weight:400;}
+  label .req{color:var(--seal); font-weight:800;}
+  .field{margin-bottom:16px;}
+  input,select{width:100%; padding:13px 14px; font-size:16px; border:1.5px solid var(--line);
+    border-radius:12px; background:var(--field); color:var(--ink); appearance:none;
+    transition:border-color .15s, box-shadow .15s;}
+  input:focus,select:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,78,168,.13);}
+  .seg{display:flex; gap:8px; flex-wrap:wrap;}
+  .seg button{flex:1; min-width:60px; padding:11px 0; border:1.5px solid var(--line); background:var(--field);
+    border-radius:999px; font-size:14px; color:var(--sub); cursor:pointer; font-weight:600; transition:all .15s;}
+  .seg button.on{border-color:var(--navy); background:var(--navy); color:#fff;}
+  .btn{width:100%; padding:16px; font-size:16px; font-weight:800; color:#fff;
+    background:var(--navy); border:none; border-radius:14px; cursor:pointer; letter-spacing:.3px;
+    transition:transform .08s, background .15s;}
+  .btn:active{background:var(--navy-d); transform:scale(.985);}
+  .btn:disabled{opacity:.5;}
+  .hint{font-size:12px; color:var(--sub); margin:7px 2px 0;}
+
+  #result{display:none; animation:fadeUp .45s ease;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  .saju-card{background:linear-gradient(175deg,#ffffff 0%,#f0f5fc 100%); border:1px solid var(--blue-l);
+    border-radius:20px; padding:10px; box-shadow:0 3px 18px rgba(0,48,135,.10);}
+  .saju-inner{border:1px solid rgba(0,78,168,.30); border-radius:14px; padding:20px 14px; text-align:center;}
+  .saju-card .stars{color:var(--blue); font-size:11px; letter-spacing:6px;}
+  .saju-card .date{font-size:12px; color:var(--sub); letter-spacing:1.5px; margin-top:6px;}
+  .pillars{display:flex; justify-content:center; align-items:stretch; gap:8px; margin:18px 0 8px;}
+  .pillar{flex:1; max-width:80px; position:relative; padding:7px 6px 8px; background:#fff; border:1px solid var(--line); border-radius:12px;}
+  .pillar .glyphs{display:flex; flex-direction:column; gap:4px;}
+  .pillar .g{border-radius:8px; font-size:25px; font-weight:800; line-height:1.4; padding:1px 0;}
+  .pillar .g.none{background:#eef1f7; color:#b9c2d4;}
+  .pillar .role{font-size:10.5px; color:var(--blue); margin-top:6px; font-weight:700; letter-spacing:1px;}
+  .pillar .kr{font-size:12px; color:var(--sub);}
+  .pillar.me{border:2px solid var(--navy); box-shadow:0 4px 14px rgba(0,48,135,.20); transform:scale(1.06);}
+  .pillar.me .role{color:var(--navy);}
+  .me-badge{position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff;
+    font-size:10px; font-weight:800; padding:2px 9px; border-radius:999px; letter-spacing:1px; white-space:nowrap;}
+  .ilgan{margin-top:14px; font-size:13.5px; color:var(--navy); font-weight:800;}
+  .ohaeng{display:flex; justify-content:center; flex-wrap:wrap; gap:5px; margin-top:9px;}
+  .el-chip{font-size:11.5px; font-weight:700; padding:3px 10px; border-radius:999px;}
+  .subh{display:block; color:var(--navy); font-weight:800; font-size:14px; margin:16px 0 6px; letter-spacing:.2px;}
+  p > .subh:first-child{margin-top:2px;}
+  .desc{font-size:15px; margin:16px 4px 6px; text-align:left;}
+  .desc p, .box p{margin:0 0 12px;} .desc p:last-child, .box p:last-child{margin:0;}
+
+  h2.sec{font-size:13px; color:var(--sub); margin:28px 2px 12px; font-weight:700; letter-spacing:.5px;
+    display:flex; align-items:center; gap:10px;}
+  h2.sec::before, h2.sec::after{content:""; flex:1; height:1px; background:var(--line);}
+  .wide{display:flex; align-items:center; gap:13px; width:100%; padding:14px 16px; border-radius:16px;
+    text-align:left; cursor:pointer; margin-bottom:10px; border:none;
+    transition:transform .08s, box-shadow .15s, filter .15s;}
+  .wide:active{transform:scale(.98); filter:brightness(.96);}
+  .w-ic{font-size:24px; line-height:1; flex-shrink:0;}
+  .w-tx{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .w-t{font-size:15.5px; font-weight:800; letter-spacing:.2px; line-height:1.3;}
+  .w-s{font-size:12px; font-weight:500; opacity:.8; line-height:1.4;}
+  .wide.today{background:linear-gradient(135deg,#0a5cc2 0%,var(--blue) 100%); color:#fff; box-shadow:0 4px 14px rgba(0,78,168,.25);}
+  .wide.today.on{box-shadow:0 0 0 3px rgba(0,78,168,.3), 0 4px 14px rgba(0,78,168,.25);}
+  .wide.month{background:linear-gradient(135deg,#0d3d9e 0%,var(--navy) 100%); color:#fff; box-shadow:0 4px 14px rgba(0,48,135,.25);}
+  .wide.month.on{box-shadow:0 0 0 3px rgba(0,48,135,.3), 0 4px 14px rgba(0,48,135,.25);}
+  .wide.persona{background:linear-gradient(135deg,#6f71cf 0%,var(--plum) 100%); color:#fff; box-shadow:0 4px 14px rgba(93,95,184,.28);}
+  .wide.persona.on{box-shadow:0 0 0 3px rgba(93,95,184,.32), 0 4px 14px rgba(93,95,184,.28);}
+  .wide.gung{background:linear-gradient(135deg,#ffffff 0%,#fdf2f4 100%); color:var(--seal);
+    border:1.5px solid #eecdd2; box-shadow:0 3px 10px rgba(193,73,83,.1);}
+  .wide.gung .w-s{opacity:.72;}
+  .wide.gung.on{background:linear-gradient(135deg,#ca5560 0%,var(--seal) 100%); color:#fff; border-color:transparent;}
+  .wide.group{background:linear-gradient(135deg,#ffffff 0%,#eef4fc 100%); color:var(--blue);
+    border:1.5px solid #cfe0f4; box-shadow:0 3px 10px rgba(0,78,168,.1);}
+  .wide.group .w-s{opacity:.72;}
+  .wide.group.on{background:linear-gradient(135deg,#1266c0 0%,var(--blue) 100%); color:#fff; border-color:transparent;}
+  .cats{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:10px;}
+  .cat{padding:14px 0; border:1px solid var(--line); background:var(--card); border-radius:12px;
+    font-size:14.5px; font-weight:700; color:var(--ink); cursor:pointer; text-align:center;
+    box-shadow:0 1px 4px rgba(0,48,135,.05); transition:all .12s;}
+  .cat.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+
+  .panel{display:none; border-radius:16px; padding:18px 16px; margin-bottom:10px; animation:fadeUp .3s ease;}
+  .panel.show{display:block;}
+  .panel .p-title{font-size:13.5px; font-weight:800; margin-bottom:13px;}
+  #partner{background:#fdf4f5; border:1px solid #f0d3d7;}
+  #partner .p-title{color:var(--seal);}
+  #partner .btn{background:var(--seal);} #partner .btn:active{background:#a03840;}
+  #partner .seg button.on{background:var(--seal); border-color:var(--seal);}
+  #gpanel{background:#eef4fc; border:1px solid #d3e2f5;}
+  #gpanel .p-title{color:var(--blue);}
+  #gpanel .p-title .cnt{float:right; font-weight:700; color:var(--sub); font-size:12.5px;}
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:13px;}
+  .chip{background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 13px;
+    font-size:13px; font-weight:600; color:var(--ink);}
+  .chip b{color:var(--blue);}
+  .chip.me{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .chip.me b{color:#bcd4f5;}
+  .chip .x{margin-left:7px; color:var(--seal); cursor:pointer; font-weight:800;}
+  .row2{display:flex; gap:8px; margin-bottom:9px;}
+  .btn.small{padding:12px 0; font-size:14px; border-radius:12px;}
+  .btn.addBtn{background:var(--blue);} .btn.addBtn:active{background:var(--blue-d);}
+  .btn.plumB{background:var(--plum);} .btn.plumB:active{background:#4a4c99;}
+  .btn.payB{background:#0e7a5f;} .btn.payB:active{background:#0a5c48;}
+
+  .paybars{margin:2px 0 14px;}
+  .payrow{display:flex; align-items:center; gap:8px; margin:6px 0;}
+  .payname{width:64px; font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .paytrack{flex:1; height:14px; background:#eef1f7; border-radius:7px; overflow:hidden;}
+  .payfill{display:block; height:100%; border-radius:7px; transition:width .5s ease;}
+  .paypct{width:40px; text-align:right; font-size:12.5px; font-weight:800; color:var(--navy);}
+
+  .answer{margin-top:14px;}
+  .answer .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--navy);
+    border-radius:14px; padding:18px 17px; font-size:15px; box-shadow:0 2px 10px rgba(0,48,135,.05);
+    animation:fadeUp .35s ease;}
+  .answer .box.g{border-left-color:var(--seal);}
+  .answer .box.p{border-left-color:var(--plum);}
+  .answer .box.o{border-left-color:var(--blue);}
+  .answer .t{font-weight:800; color:var(--navy); margin-bottom:10px; font-size:14px; letter-spacing:.3px;}
+  .answer .box.g .t{color:var(--seal);} .answer .box.p .t{color:var(--plum);} .answer .box.o .t{color:var(--blue);}
+  .pair-head{font-size:13px; color:var(--ink); background:#fff; border:1px solid var(--line);
+    border-radius:10px; padding:9px 10px; margin-bottom:12px; text-align:center; font-weight:700;}
+  .loading{color:var(--sub); font-size:14px; padding:10px 2px;}
+  .dot{display:inline-block; animation:b 1.2s infinite;}
+  .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+  @keyframes b{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+  .reset{display:block; margin:24px auto 0; background:none; border:none; color:var(--sub);
+    font-size:13px; text-decoration:underline; cursor:pointer;}
+  footer{text-align:center; color:var(--sub); font-size:11.5px; margin-top:34px; line-height:1.8;}
+  .err{color:var(--seal); font-size:13.5px; padding:10px 2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="orn">✦ ✦ ✦</div>
+    <div class="han serif">四 柱 八 字</div>
+    <h1>오늘의 사주 한 잔</h1>
+    <p>생년월일만 넣으면, 진짜 사주로 풀어드려요</p>
+    <div class="divider"></div>
+  </header>
+
+  <div class="card" id="form">
+    <div class="field">
+      <label>이름 <span class="opt">(선택)</span></label>
+      <input id="name" type="text" placeholder="닉네임도 좋아요" maxlength="20" />
+    </div>
+    <div class="field">
+      <label>성별 <span class="opt">(선택)</span></label>
+      <div class="seg" id="genderSeg">
+        <button data-g="남">남</button><button data-g="여">여</button>
+        <button data-g="" class="on">선택 안 함</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>생년월일 <span class="opt">(양력)</span> <span class="req">*</span></label>
+      <input id="birth" type="date" min="1920-01-01" />
+      <div class="hint">음력만 아는 경우는 음력→양력 변환 후 입력해 주세요.</div>
+    </div>
+    <div class="field">
+      <label>태어난 시간</label>
+      <select id="hour"><option value="unknown" selected>시간 모름</option></select>
+      <div class="hint">시간을 모르면 ‘시간 모름’ 그대로 둬도 돼요.</div>
+    </div>
+    <button class="btn" id="go">내 사주 보기</button>
+    <div class="err" id="formErr" style="display:none"></div>
+  </div>
+
+  <div id="result">
+    <div class="saju-card"><div class="saju-inner">
+      <div class="stars">✦ · ✦ · ✦</div>
+      <div class="date" id="rDate"></div>
+      <div class="pillars" id="rPillars"></div>
+      <div class="ilgan" id="rIlgan"></div>
+      <div class="ohaeng" id="rOhaeng"></div>
+      <div class="desc" id="rDesc"></div>
+    </div></div>
+
+    <h2 class="sec">어떤 운이 궁금해요?</h2>
+
+    <button class="wide today" id="btnToday"><span class="w-ic">☀️</span><span class="w-tx"><span class="w-t">오늘의 운세</span><span class="w-s">오늘 일진으로 보는 하루 기운과 행운 포인트</span></span></button>
+    <button class="wide month" id="btnMonth"></button>
+    <div class="cats" id="cats"></div>
+    <button class="wide persona" id="btnPersona"><span class="w-ic">🧬</span><span class="w-tx"><span class="w-t">에겐·테토 판독기</span><span class="w-s">나는 에겐? 테토? 예상 MBTI까지 한 번에</span></span></button>
+
+    <button class="wide gung" id="btnGung"><span class="w-ic">💞</span><span class="w-tx"><span class="w-t">1:1 궁합</span><span class="w-s">연인·썸·친구·동료 케미 정밀 판독</span></span></button>
+    <div class="panel" id="partner">
+      <div class="p-title">상대방 정보를 넣어주세요</div>
+      <div class="field" style="margin-bottom:12px">
+        <label>관계</label>
+        <div class="seg" id="relSeg">
+          <button data-r="연인" class="on">연인</button><button data-r="썸">썸</button>
+          <button data-r="친구">친구</button><button data-r="동료">동료</button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>상대 생년월일 <span class="opt">(양력)</span></label>
+        <input id="pBirth" type="date" min="1920-01-01" />
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>상대 태어난 시간</label>
+        <select id="pHour"><option value="unknown" selected>시간 모름</option></select>
+      </div>
+      <button class="btn" id="goGung">궁합 보기</button>
+    </div>
+
+    <button class="wide group" id="btnGroup"><span class="w-ic">👥</span><span class="w-tx"><span class="w-t">단체 케미 판독</span><span class="w-s">최대 10명 — 모임 케미·어워드·롤 분석</span></span></button>
+    <div class="panel" id="gpanel">
+      <div class="p-title">함께한 멤버를 추가해주세요 <span class="cnt" id="gCount">1/10</span></div>
+      <div class="chips" id="gChips"></div>
+      <div class="row2">
+        <input id="gName" type="text" placeholder="이름/별명" maxlength="10" style="flex:1" />
+        <input id="gBirth" type="date" min="1920-01-01" style="flex:1.5" />
+      </div>
+      <div class="row2">
+        <select id="gGender" style="flex:.8"><option value="" selected>성별 선택 안 함</option><option value="남">남</option><option value="여">여</option></select>
+        <select id="gHour" style="flex:1"><option value="unknown" selected>시간 모름</option></select>
+      </div>
+      <div class="row2">
+        <button class="btn small addBtn" id="gAdd" style="flex:1">＋ 추가</button>
+      </div>
+      <button class="btn" id="goGroup">🤝 단체 궁합 보기</button>
+      <button class="btn small plumB" id="goGroupPersona" style="margin-top:8px">🧬 에겐·테토 단체 판독</button>
+      <button class="btn small payB" id="goGroupPay" style="margin-top:8px">💸 오늘 술값의 귀인은?</button>
+      <div class="hint">전원의 생년월일만 있으면 돼요 · 분석에 10~30초 걸릴 수 있어요</div>
+    </div>
+
+    <div class="answer" id="answer"></div>
+    <button class="reset" id="reset">처음부터 다시</button>
+  </div>
+
+  <footer>
+    재미로 보는 콘텐츠예요<br>사주팔자는 한국천문연구원 만세력 기준으로 계산됩니다
+  </footer>
+</div>
+
+<script>
+  const sijin = ["子자시","丑축시","丑축시","寅인시","寅인시","卯묘시","卯묘시","辰진시","辰진시","巳사시","巳사시","午오시","午오시","未미시","未미시","申신시","申신시","酉유시","酉유시","戌술시","戌술시","亥해시","亥해시","子자시"];
+  function fillHours(sel){
+    for(let h=0; h<24; h++){
+      const o=document.createElement('option'); o.value=h;
+      const h12=(h%12)===0?12:h%12;
+      o.textContent=`${String(h).padStart(2,'0')}시 (${h<12?'오전':'오후'} ${h12}시·${sijin[h]})`;
+      sel.appendChild(o);
+    }
+  }
+  fillHours(document.getElementById('hour'));
+  fillHours(document.getElementById('pHour'));
+  fillHours(document.getElementById('gHour'));
+
+  let gender="", relation="연인";
+  function seg(id,set){ document.querySelectorAll(`#${id} button`).forEach(b=>{ b.onclick=()=>{
+    document.querySelectorAll(`#${id} button`).forEach(x=>x.classList.remove('on')); b.classList.add('on'); set(b);
+  };});}
+  seg('genderSeg', b=>gender=b.dataset.g);
+  seg('relSeg', b=>relation=b.dataset.r);
+
+  const MONTH = new Date().getMonth()+1;
+  document.getElementById('btnMonth').innerHTML = `<span class="w-ic">🗓️</span><span class="w-tx"><span class="w-t">${MONTH}월 운세</span><span class="w-s">이번 달 기회와 조심할 것</span></span>`;
+
+  const CATS = ["총운","연애운","결혼운","금전운","직업운","건강운"];
+  let payload=null; const cache={};
+  let groupMembers=[];
+
+  // 오행 컬러 매핑 (천간·지지 글자별)
+  const STEM_EL={'甲':'목','乙':'목','丙':'화','丁':'화','戊':'토','己':'토','庚':'금','辛':'금','壬':'수','癸':'수'};
+  const BRANCH_EL={'寅':'목','卯':'목','巳':'화','午':'화','辰':'토','戌':'토','丑':'토','未':'토','申':'금','酉':'금','亥':'수','子':'수'};
+  const EL_COLOR={목:'#2e7d52',화:'#d64541',토:'#e0a63c',금:'#8d94a1',수:'#1f2a44'};
+  const EL_TEXT={목:'#fff',화:'#fff',토:'#43310a',금:'#161c28',수:'#fff'};
+  function glyph(ch, el){ return `<div class="g serif" style="background:${EL_COLOR[el]};color:${EL_TEXT[el]}">${ch}</div>`; }
+
+  function dots(msg){ return `<span class="loading">${msg||'풀이 중'}<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>`; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function kdate(){ return new Date(Date.now()+9*3600e3).toISOString().slice(0,10); }
+  function fmt(p){
+    const lines = esc(p).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').split('\n');
+    let out='', needBr=false;
+    for(const ln of lines){
+      const t=ln.trim();
+      if(t.startsWith('◆')){ out+=`<span class="subh">${t}</span>`; needBr=false; }
+      else if(t===''){ needBr=false; }
+      else { out+=(needBr?'<br>':'')+ln; needBr=true; }
+    }
+    return out;
+  }
+  function paras(text){ return text.split(/\n{2,}/).map(p=>`<p>${fmt(p)}</p>`).join(''); }
+  function box(title,text,color){ return `<div class="box${color?' '+color:''}"><div class="t">${title}</div>${paras(text)}</div>`; }
+
+  async function callAPI(extra){
+    const res = await fetch('/api/reading',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({...payload, ...extra})});
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error||'오류가 발생했어요');
+    return data;
+  }
+
+  document.getElementById('go').onclick = async ()=>{
+    const birth=document.getElementById('birth').value;
+    const errEl=document.getElementById('formErr'); errEl.style.display='none';
+    if(!birth){ errEl.textContent='생년월일을 입력해 주세요.'; errEl.style.display='block'; return; }
+    const [y,m,d]=birth.split('-').map(Number);
+    const hv=document.getElementById('hour').value;
+    payload={ name:document.getElementById('name').value.trim(), gender, year:y,month:m,day:d,
+      hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 };
+    const btn=document.getElementById('go'); btn.disabled=true; btn.textContent='사주 푸는 중...';
+    try{
+      const data=await callAPI({section:'profile'});
+      renderProfile(data);
+      document.getElementById('form').style.display='none';
+      document.getElementById('result').style.display='block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){ errEl.textContent=e.message; errEl.style.display='block'; }
+    finally{ btn.disabled=false; btn.textContent='내 사주 보기'; }
+  };
+
+  function renderProfile(data){
+    const s=data.saju; const order=['년주','월주','일주','시주'];
+    document.getElementById('rDate').textContent =
+      `${payload.year} · ${String(payload.month).padStart(2,'0')} · ${String(payload.day).padStart(2,'0')}`
+      + (s.시간보정?`  ·  진태양시 ${s.시간보정.hour}:${String(s.시간보정.minute).padStart(2,'0')} 보정`:'');
+    document.getElementById('rPillars').innerHTML = order.map(k=>{
+      const p=s.pillars[k]; const me = k==='일주';
+      if(!p) return `<div class="pillar"><div class="glyphs"><div class="g none">—</div><div class="g none">—</div></div><div class="role">${k}</div><div class="kr">시간 모름</div></div>`;
+      const st=p.hanja[0], br=p.hanja[1];
+      return `<div class="pillar${me?' me':''}">${me?'<div class="me-badge">나</div>':''}<div class="glyphs">${glyph(st,STEM_EL[st])}${glyph(br,BRANCH_EL[br])}</div><div class="role">${k}</div><div class="kr">${p.hangul}</div></div>`;
+    }).join('');
+    document.getElementById('rIlgan').textContent = `일간 ${s.일간.hangul}${s.일간.hanja} · ${s.일간.오행}(${s.일간.음양})의 기운`;
+    document.getElementById('rOhaeng').innerHTML = Object.entries(s.오행분포).map(([k,v])=>
+      `<span class="el-chip" style="background:${EL_COLOR[k]};color:${EL_TEXT[k]}">${k} ${v}</span>`).join('');
+    document.getElementById('rDesc').innerHTML = paras(data.text);
+
+    document.getElementById('cats').innerHTML = CATS.map(c=>`<button class="cat" data-c="${c}">${c}</button>`).join('');
+    document.querySelectorAll('.cat').forEach(b=> b.onclick=()=>fetchSection(b.dataset.c, b, {}));
+    document.getElementById('answer').innerHTML='';
+    refreshChips();
+  }
+
+  function clearActive(){ document.querySelectorAll('.cat,.wide').forEach(x=>x.classList.remove('on')); }
+  function hidePanels(){ document.getElementById('partner').classList.remove('show'); document.getElementById('gpanel').classList.remove('show'); }
+  function labelOf(section){ return section==='이번달운세'?`${MONTH}월 운세`: section==='에겐테토'?'🧬 에겐·테토 판독': section==='오늘의운세'?'☀️ 오늘의 운세':section; }
+
+  async function fetchSection(section, btn, opt){
+    clearActive(); btn.classList.add('on'); hidePanels();
+    const ans=document.getElementById('answer');
+    const ck = section==='오늘의운세' ? section+'|'+kdate() : section;
+    if(cache[ck]){ ans.innerHTML=box(labelOf(section), cache[ck], opt.color); return; }
+    ans.innerHTML=dots(opt.loadMsg);
+    try{
+      const data=await callAPI({section});
+      cache[ck]=data.text; ans.innerHTML=box(labelOf(section), data.text, opt.color);
+    }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
+  }
+
+  document.getElementById('btnToday').onclick = (e)=> fetchSection('오늘의운세', e.currentTarget, {loadMsg:'오늘 일진 보는 중'});
+  document.getElementById('btnMonth').onclick = (e)=> fetchSection('이번달운세', e.currentTarget, {});
+  document.getElementById('btnPersona').onclick = (e)=> fetchSection('에겐테토', e.currentTarget, {color:'p', loadMsg:'판독 중'});
+
+  document.getElementById('btnGung').onclick = (e)=>{
+    const p=document.getElementById('partner'); const open=!p.classList.contains('show');
+    clearActive(); hidePanels();
+    if(open){ p.classList.add('show'); e.currentTarget.classList.add('on'); p.scrollIntoView({behavior:'smooth',block:'center'}); }
+  };
+  document.getElementById('goGung').onclick = async ()=>{
+    const pb=document.getElementById('pBirth').value;
+    const ans=document.getElementById('answer');
+    if(!pb){ ans.innerHTML='<div class="err">상대방 생년월일을 입력해 주세요.</div>'; return; }
+    const [y,m,d]=pb.split('-').map(Number);
+    const hv=document.getElementById('pHour').value;
+    const partner={ year:y,month:m,day:d, hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 };
+    const btn=document.getElementById('goGung'); btn.disabled=true; btn.textContent='궁합 보는 중...';
+    ans.innerHTML=dots();
+    try{
+      const data=await callAPI({section:'궁합', relation, partner});
+      let head='';
+      if(data.partner){ head=`<div class="pair-head">나 ${data.saju.일간.hangul}${data.saju.일간.hanja} &nbsp;↔&nbsp; 상대 ${data.partner.일간.hangul}${data.partner.일간.hanja} &nbsp;·&nbsp; ${relation}</div>`; }
+      ans.innerHTML = `<div class="box g"><div class="t">💞 ${relation} 궁합</div>${head}${paras(data.text)}</div>`;
+    }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
+    finally{ btn.disabled=false; btn.textContent='궁합 보기'; }
+  };
+
+  document.getElementById('btnGroup').onclick = (e)=>{
+    const g=document.getElementById('gpanel'); const open=!g.classList.contains('show');
+    clearActive(); hidePanels();
+    if(open){ g.classList.add('show'); e.currentTarget.classList.add('on'); refreshChips(); g.scrollIntoView({behavior:'smooth',block:'center'}); }
+  };
+  function refreshChips(){
+    if(!payload) return;
+    const meName = payload.name || '나';
+    const chips=[`<span class="chip me"><b>${esc(meName)}</b> (나)</span>`]
+      .concat(groupMembers.map((m,i)=>`<span class="chip"><b>${esc(m.name)}</b>${m.gender?(m.gender==='남'?' ♂':' ♀'):''} ${String(m.year).slice(2)}.${m.month}.${m.day}<span class="x" data-i="${i}">✕</span></span>`));
+    document.getElementById('gChips').innerHTML=chips.join('');
+    document.getElementById('gCount').textContent=`${1+groupMembers.length}/10`;
+    document.querySelectorAll('#gChips .x').forEach(x=>x.onclick=()=>{ groupMembers.splice(Number(x.dataset.i),1); refreshChips(); });
+  }
+  document.getElementById('gAdd').onclick = ()=>{
+    const ans=document.getElementById('answer');
+    const gb=document.getElementById('gBirth').value;
+    if(!gb){ ans.innerHTML='<div class="err">추가할 멤버의 생년월일을 입력해 주세요.</div>'; return; }
+    if(1+groupMembers.length>=10){ ans.innerHTML='<div class="err">최대 10명까지 가능해요.</div>'; return; }
+    const [y,m,d]=gb.split('-').map(Number);
+    const hv=document.getElementById('gHour').value;
+    const gv=document.getElementById('gGender').value;
+    const nm=document.getElementById('gName').value.trim() || `멤버${groupMembers.length+2}`;
+    groupMembers.push({ name:nm, gender:gv, year:y, month:m, day:d, hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 });
+    document.getElementById('gName').value=''; document.getElementById('gBirth').value='';
+    document.getElementById('gHour').value='unknown'; document.getElementById('gGender').value='';
+    ans.innerHTML=''; refreshChips();
+  };
+  const PAY_PAL=['#004EA8','#c14953','#0e7a5f','#e0a63c','#5d5fb8','#1f8fa8','#8d5fb0','#b96a2e','#4a6fa5','#68737d'];
+  function groupResult(title, d, color){
+    let chart='';
+    if(d.splits && d.splits.length){
+      chart = '<div class="paybars">'+d.splits.map((s,i)=>
+        `<div class="payrow"><span class="payname">${esc(s.name)}</span><span class="paytrack"><span class="payfill" style="width:${s.percent}%;background:${PAY_PAL[i%PAY_PAL.length]}"></span></span><span class="paypct">${s.percent}%</span></div>`).join('')+'</div>';
+    }
+    return `<div class="box${color?' '+color:''}"><div class="t">${title}</div>${chart}${paras(d.text)}</div>`;
+  }
+  async function runGroup(section, btnId, title, color, doneTxt){
+    const ans=document.getElementById('answer');
+    const members=[{ name:payload.name||'나', gender, year:payload.year, month:payload.month, day:payload.day,
+      hour:payload.hour, minute:0, hourUnknown:payload.hourUnknown }, ...groupMembers];
+    if(members.length<2){ ans.innerHTML='<div class="err">멤버를 1명 이상 추가해 주세요. (본인 포함 2~10명)</div>'; return; }
+    const ck=section+'|'+JSON.stringify(members)+(section==='술값귀인'?'|'+kdate():'');
+    if(cache[ck]){ ans.innerHTML=groupResult(title, cache[ck], color); return; }
+    const btn=document.getElementById(btnId); btn.disabled=true;
+    ans.innerHTML=dots(`${members.length}명 분석 중 (10~30초)`);
+    try{
+      const data=await callAPI({section, members});
+      cache[ck]={text:data.text, splits:data.splits||null};
+      ans.innerHTML=groupResult(title, cache[ck], color);
+      ans.scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(e){ ans.innerHTML=`<div class="err">${e.message}</div>`; }
+    finally{ btn.disabled=false; btn.textContent=doneTxt; }
+  }
+  document.getElementById('goGroup').onclick = ()=> runGroup('단체궁합','goGroup','🤝 단체 궁합','o','🤝 단체 궁합 보기');
+  document.getElementById('goGroupPersona').onclick = ()=> runGroup('단체에겐테토','goGroupPersona','🧬 에겐·테토 단체 판독','p','🧬 에겐·테토 단체 판독');
+  document.getElementById('goGroupPay').onclick = ()=> runGroup('술값귀인','goGroupPay','💸 오늘 술값의 귀인','o','💸 오늘 술값의 귀인은?');
+
+  document.getElementById('reset').onclick = ()=>{
+    payload=null; groupMembers=[]; for(const k in cache) delete cache[k]; clearActive(); hidePanels();
+    document.getElementById('answer').innerHTML='';
+    document.getElementById('result').style.display='none';
+    document.getElementById('form').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+</script>
+</body>
+</html>
