@@ -79,19 +79,28 @@
   h2.sec{font-size:13px; color:var(--sub); margin:28px 2px 12px; font-weight:700; letter-spacing:.5px;
     display:flex; align-items:center; gap:10px;}
   h2.sec::before, h2.sec::after{content:""; flex:1; height:1px; background:var(--line);}
-  .wide{width:100%; padding:15px; border-radius:14px; font-size:15.5px; font-weight:800; cursor:pointer;
-    margin-bottom:10px; transition:transform .08s, box-shadow .15s;}
-  .wide:active{transform:scale(.985);}
-  .wide.today{background:var(--blue); color:#fff; border:none;}
-  .wide.today.on{box-shadow:0 0 0 3px rgba(0,78,168,.28);}
-  .wide.month{background:var(--navy); color:#fff; border:none;}
-  .wide.month.on{box-shadow:0 0 0 3px rgba(0,48,135,.28);}
-  .wide.persona{background:var(--plum); color:#fff; border:none;}
-  .wide.persona.on{box-shadow:0 0 0 3px rgba(93,95,184,.3);}
-  .wide.gung{background:var(--card); color:var(--seal); border:1.5px solid var(--seal);}
-  .wide.gung.on{background:var(--seal); color:#fff;}
-  .wide.group{background:var(--card); color:var(--blue); border:1.5px solid var(--blue);}
-  .wide.group.on{background:var(--blue); color:#fff;}
+  .wide{display:flex; align-items:center; gap:13px; width:100%; padding:14px 16px; border-radius:16px;
+    text-align:left; cursor:pointer; margin-bottom:10px; border:none;
+    transition:transform .08s, box-shadow .15s, filter .15s;}
+  .wide:active{transform:scale(.98); filter:brightness(.96);}
+  .w-ic{font-size:24px; line-height:1; flex-shrink:0;}
+  .w-tx{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .w-t{font-size:15.5px; font-weight:800; letter-spacing:.2px; line-height:1.3;}
+  .w-s{font-size:12px; font-weight:500; opacity:.8; line-height:1.4;}
+  .wide.today{background:linear-gradient(135deg,#0a5cc2 0%,var(--blue) 100%); color:#fff; box-shadow:0 4px 14px rgba(0,78,168,.25);}
+  .wide.today.on{box-shadow:0 0 0 3px rgba(0,78,168,.3), 0 4px 14px rgba(0,78,168,.25);}
+  .wide.month{background:linear-gradient(135deg,#0d3d9e 0%,var(--navy) 100%); color:#fff; box-shadow:0 4px 14px rgba(0,48,135,.25);}
+  .wide.month.on{box-shadow:0 0 0 3px rgba(0,48,135,.3), 0 4px 14px rgba(0,48,135,.25);}
+  .wide.persona{background:linear-gradient(135deg,#6f71cf 0%,var(--plum) 100%); color:#fff; box-shadow:0 4px 14px rgba(93,95,184,.28);}
+  .wide.persona.on{box-shadow:0 0 0 3px rgba(93,95,184,.32), 0 4px 14px rgba(93,95,184,.28);}
+  .wide.gung{background:linear-gradient(135deg,#ffffff 0%,#fdf2f4 100%); color:var(--seal);
+    border:1.5px solid #eecdd2; box-shadow:0 3px 10px rgba(193,73,83,.1);}
+  .wide.gung .w-s{opacity:.72;}
+  .wide.gung.on{background:linear-gradient(135deg,#ca5560 0%,var(--seal) 100%); color:#fff; border-color:transparent;}
+  .wide.group{background:linear-gradient(135deg,#ffffff 0%,#eef4fc 100%); color:var(--blue);
+    border:1.5px solid #cfe0f4; box-shadow:0 3px 10px rgba(0,78,168,.1);}
+  .wide.group .w-s{opacity:.72;}
+  .wide.group.on{background:linear-gradient(135deg,#1266c0 0%,var(--blue) 100%); color:#fff; border-color:transparent;}
   .cats{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:10px;}
   .cat{padding:14px 0; border:1px solid var(--line); background:var(--card); border-radius:12px;
     font-size:14.5px; font-weight:700; color:var(--ink); cursor:pointer; text-align:center;
@@ -189,12 +198,12 @@
 
     <h2 class="sec">어떤 운이 궁금해요?</h2>
 
-    <button class="wide today" id="btnToday">☀️ 오늘의 운세 — 오늘 일진으로 보는 하루</button>
+    <button class="wide today" id="btnToday"><span class="w-ic">☀️</span><span class="w-tx"><span class="w-t">오늘의 운세</span><span class="w-s">오늘 일진으로 보는 하루 기운과 행운 포인트</span></span></button>
     <button class="wide month" id="btnMonth"></button>
     <div class="cats" id="cats"></div>
-    <button class="wide persona" id="btnPersona">🧬 에겐·테토 판독기 — 나는 에겐? 테토?</button>
+    <button class="wide persona" id="btnPersona"><span class="w-ic">🧬</span><span class="w-tx"><span class="w-t">에겐·테토 판독기</span><span class="w-s">나는 에겐? 테토? 예상 MBTI까지 한 번에</span></span></button>
 
-    <button class="wide gung" id="btnGung">💞 1:1 궁합 (연인·썸·친구)</button>
+    <button class="wide gung" id="btnGung"><span class="w-ic">💞</span><span class="w-tx"><span class="w-t">1:1 궁합</span><span class="w-s">연인·썸·친구·동료 케미 정밀 판독</span></span></button>
     <div class="panel" id="partner">
       <div class="p-title">상대방 정보를 넣어주세요</div>
       <div class="field" style="margin-bottom:12px">
@@ -215,7 +224,7 @@
       <button class="btn" id="goGung">궁합 보기</button>
     </div>
 
-    <button class="wide group" id="btnGroup">👥 단체 케미 판독 (최대 10명)</button>
+    <button class="wide group" id="btnGroup"><span class="w-ic">👥</span><span class="w-tx"><span class="w-t">단체 케미 판독</span><span class="w-s">최대 10명 — 모임 케미·어워드·롤 분석</span></span></button>
     <div class="panel" id="gpanel">
       <div class="p-title">함께한 멤버를 추가해주세요 <span class="cnt" id="gCount">1/10</span></div>
       <div class="chips" id="gChips"></div>
@@ -224,8 +233,11 @@
         <input id="gBirth" type="date" min="1920-01-01" style="flex:1.5" />
       </div>
       <div class="row2">
+        <select id="gGender" style="flex:.8"><option value="" selected>성별 선택 안 함</option><option value="남">남</option><option value="여">여</option></select>
         <select id="gHour" style="flex:1"><option value="unknown" selected>시간 모름</option></select>
-        <button class="btn small addBtn" id="gAdd" style="flex:.6">＋ 추가</button>
+      </div>
+      <div class="row2">
+        <button class="btn small addBtn" id="gAdd" style="flex:1">＋ 추가</button>
       </div>
       <button class="btn" id="goGroup">🤝 단체 궁합 보기</button>
       <button class="btn small plumB" id="goGroupPersona" style="margin-top:8px">🧬 에겐·테토 단체 판독</button>
@@ -263,7 +275,7 @@
   seg('relSeg', b=>relation=b.dataset.r);
 
   const MONTH = new Date().getMonth()+1;
-  document.getElementById('btnMonth').textContent = `🗓️ ${MONTH}월 운세 — 이번 달 기회와 조심할 것`;
+  document.getElementById('btnMonth').innerHTML = `<span class="w-ic">🗓️</span><span class="w-tx"><span class="w-t">${MONTH}월 운세</span><span class="w-s">이번 달 기회와 조심할 것</span></span>`;
 
   const CATS = ["총운","연애운","결혼운","금전운","직업운","건강운"];
   let payload=null; const cache={};
@@ -394,7 +406,7 @@
     if(!payload) return;
     const meName = payload.name || '나';
     const chips=[`<span class="chip me"><b>${esc(meName)}</b> (나)</span>`]
-      .concat(groupMembers.map((m,i)=>`<span class="chip"><b>${esc(m.name)}</b> ${String(m.year).slice(2)}.${m.month}.${m.day}<span class="x" data-i="${i}">✕</span></span>`));
+      .concat(groupMembers.map((m,i)=>`<span class="chip"><b>${esc(m.name)}</b>${m.gender?(m.gender==='남'?' ♂':' ♀'):''} ${String(m.year).slice(2)}.${m.month}.${m.day}<span class="x" data-i="${i}">✕</span></span>`));
     document.getElementById('gChips').innerHTML=chips.join('');
     document.getElementById('gCount').textContent=`${1+groupMembers.length}/10`;
     document.querySelectorAll('#gChips .x').forEach(x=>x.onclick=()=>{ groupMembers.splice(Number(x.dataset.i),1); refreshChips(); });
@@ -406,10 +418,11 @@
     if(1+groupMembers.length>=10){ ans.innerHTML='<div class="err">최대 10명까지 가능해요.</div>'; return; }
     const [y,m,d]=gb.split('-').map(Number);
     const hv=document.getElementById('gHour').value;
+    const gv=document.getElementById('gGender').value;
     const nm=document.getElementById('gName').value.trim() || `멤버${groupMembers.length+2}`;
-    groupMembers.push({ name:nm, year:y, month:m, day:d, hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 });
+    groupMembers.push({ name:nm, gender:gv, year:y, month:m, day:d, hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 });
     document.getElementById('gName').value=''; document.getElementById('gBirth').value='';
-    document.getElementById('gHour').value='unknown';
+    document.getElementById('gHour').value='unknown'; document.getElementById('gGender').value='';
     ans.innerHTML=''; refreshChips();
   };
   async function runGroup(section, btnId, title, color, doneTxt){
