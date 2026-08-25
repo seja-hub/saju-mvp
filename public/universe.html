@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!-- 인연 유니버스 (DEMO) — 계산은 /api/pair(비용 0원)만 사용, 저장·DB 없음(새로고침 시 초기화) -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>인연 유니버스 (DEMO)</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  :root{
+    --gold:#ffd76a; --gold-d:#e8c877; --star-fr:#aecbff;
+    --ink:#eef2fb; --sub:#93a3c8; --line:rgba(157,189,228,.22); --glass:rgba(255,255,255,.055);
+    --navy:#003087; --blue:#004EA8;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  input,button{font-family:inherit;}
+  body{margin:0; color:var(--ink); min-height:100vh;
+    background:linear-gradient(180deg,#040b20 0%,#081a40 48%,#0d2a63 100%);
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.6; padding:0 0 56px;}
+  #bgStars{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+  #bgStars i{position:absolute; background:#fff; border-radius:50%; opacity:.7;
+    animation:twk var(--t,3s) ease-in-out var(--dl,0s) infinite;}
+  @keyframes twk{0%,100%{opacity:.15;} 50%{opacity:.85;}}
+  .wrap{max-width:440px; margin:0 auto; padding:0 18px; position:relative; z-index:1;}
+
+  header{text-align:center; padding:34px 0 16px;}
+  .demo-pill{display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:2px; color:#0a1330;
+    background:linear-gradient(90deg,#ffd76a,#f0b13c); border-radius:999px; padding:4px 13px;}
+  header h1{font-size:31px; margin:12px 0 6px; font-weight:900; letter-spacing:-.5px;
+    background:linear-gradient(120deg,#fff 30%,var(--gold) 100%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  header p{margin:0; color:var(--sub); font-size:13.5px;}
+
+  .sky{position:relative; margin:14px 0; border:1px solid var(--line); border-radius:24px;
+    background:radial-gradient(circle at 50% 34%, rgba(0,78,168,.32) 0%, rgba(4,11,32,.1) 70%);
+    overflow:hidden;}
+  .sky svg{display:block; width:100%; height:auto;}
+  .sky .empty{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--sub); font-size:13.5px; text-align:center; line-height:1.7; pointer-events:none;}
+  .link{stroke:rgba(255,215,106,.5); stroke-width:1.2; stroke-dasharray:3 4; animation:fadein .8s ease;}
+  .linklab{fill:var(--gold-d); font-size:11px; font-weight:800; letter-spacing:.3px; animation:fadein .8s ease;}
+  .linkscore{fill:#7f92bd; font-size:9.5px; font-weight:600; animation:fadein .8s ease;}
+  @keyframes fadein{from{opacity:0;} to{opacity:1;}}
+  .star{transform-box:fill-box; transform-origin:center; animation:pop .5s cubic-bezier(.3,1.6,.5,1) backwards;}
+  @keyframes pop{0%{transform:scale(0);} 100%{transform:scale(1);}}
+  .glyph{animation:starTw 2.8s ease-in-out infinite;}
+  @keyframes starTw{0%,100%{opacity:1;} 50%{opacity:.62;}}
+  .g-me{font-size:46px; fill:var(--gold); filter:drop-shadow(0 0 8px rgba(255,215,106,.85));}
+  .g-fr{font-size:26px; fill:var(--star-fr); filter:drop-shadow(0 0 5px rgba(174,203,255,.75));}
+  .sname{fill:var(--ink); font-size:12px; font-weight:700;}
+  .sname.mine{fill:var(--gold); font-size:13px; font-weight:800;}
+  .ilgan-line{text-align:center; font-size:13px; color:var(--gold-d); font-weight:700; margin:-4px 0 12px;
+    min-height:20px;}
+
+  .card{background:var(--glass); border:1px solid var(--line); border-radius:18px;
+    padding:18px 16px; margin:12px 0; backdrop-filter:blur(3px);}
+  .card .c-t{font-size:13.5px; font-weight:800; margin-bottom:11px; color:var(--ink);}
+  .card .c-t .cnt{float:right; color:var(--sub); font-weight:600; font-size:12px;}
+  .row{display:flex; gap:8px;}
+  input{flex:1; min-width:0; padding:12px 13px; font-size:15px; border:1.5px solid var(--line);
+    border-radius:11px; background:rgba(4,11,32,.5); color:var(--ink); appearance:none;
+    transition:border-color .15s;}
+  input::placeholder{color:#5e6f96;}
+  input:focus{outline:none; border-color:var(--gold-d);}
+  input[type=date]{color-scheme:dark;}
+  .go{margin-top:9px; width:100%; padding:13px; font-size:14.5px; font-weight:800; border:none;
+    border-radius:12px; cursor:pointer; color:#0a1330;
+    background:linear-gradient(90deg,#ffd76a,#f0b13c); transition:transform .08s, opacity .15s;}
+  .go:active{transform:scale(.98);}
+  .go:disabled{opacity:.45;}
+  .err{color:#ff9c94; font-size:12.5px; margin-top:8px; display:none;}
+
+  .note{font-size:12px; color:var(--sub); text-align:center; line-height:1.75; margin:26px 4px 14px;}
+  .saju-btn{display:block; text-align:center; text-decoration:none; padding:14px; border-radius:13px;
+    background:transparent; border:1.5px solid var(--gold-d); color:var(--gold-d);
+    font-size:14.5px; font-weight:800; transition:transform .08s;}
+  .saju-btn:active{transform:scale(.98);}
+</style>
+</head>
+<body>
+<div id="bgStars"></div>
+<div class="wrap">
+  <header>
+    <span class="demo-pill">미리보기 (DEMO)</span>
+    <h1>인연 유니버스</h1>
+    <p>내 별자리에 인연을 띄워보세요</p>
+  </header>
+
+  <div class="sky">
+    <svg id="skySvg" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="empty" id="skyEmpty">아직 밤하늘이 비어 있어요<br>아래에서 내 별을 먼저 띄워주세요 ✦</div>
+  </div>
+  <div class="ilgan-line" id="ilganLine"></div>
+
+  <div class="card" id="meCard">
+    <div class="c-t">① 내 별 띄우기</div>
+    <div class="row">
+      <input id="myName" type="text" placeholder="이름/별명" maxlength="8" />
+      <input id="myBirth" type="date" min="1920-01-01" style="flex:1.4" />
+    </div>
+    <button class="go" id="myGo">✦ 내 별 띄우기</button>
+    <div class="err" id="myErr"></div>
+  </div>
+
+  <div class="card" id="frCard" style="display:none">
+    <div class="c-t">② 인연 추가 <span class="cnt" id="frCnt">0/4</span></div>
+    <div class="row">
+      <input id="frName" type="text" placeholder="이름/별명" maxlength="8" />
+      <input id="frBirth" type="date" min="1920-01-01" style="flex:1.4" />
+    </div>
+    <button class="go" id="frGo">🌟 인연 별 띄우기</button>
+    <div class="err" id="frErr"></div>
+  </div>
+
+  <p class="note">정식 버전에서는 링크를 받은 친구가 직접 자기 별을 올리고,<br>
+    내 인연 유니버스가 계속 자라나요 — 향후 확장 기능 미리보기</p>
+  <a class="saju-btn" href="saju.html">🍶 굿데이 사주 보러 가기</a>
+</div>
+
+<script>
+  // 배경 잔별
+  (function(){
+    const box=document.getElementById('bgStars');
+    let h='';
+    for(let i=0;i<70;i++){
+      const s=(Math.random()*1.6+.8).toFixed(1);
+      h+=`<i style="left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;width:${s}px;height:${s}px;--t:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*4).toFixed(1)}s"></i>`;
+    }
+    box.innerHTML=h;
+  })();
+
+  const ME=[180,164];
+  const SLOTS=[[76,70],[286,80],[64,262],[292,254]];
+  let me=null; const friends=[];
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display=msg?'block':'none'; }
+  function parseBirth(v){ const [y,m,d]=v.split('-').map(Number); return {year:y,month:m,day:d,hourUnknown:true,hour:12,minute:0}; }
+
+  async function callPair(a,b){
+    const res=await fetch('/api/pair',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({a,b})});
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'계산에 실패했어요');
+    return data;
+  }
+
+  // 인연 라벨 — 복수 해당 시 점수(기여도) 높은 것 우선
+  function labelOf(r){
+    const fill=(r.fillAtoB?.length||0)+(r.fillBtoA?.length||0);
+    const cands=[];
+    if((r.combos||[]).some(c=>c.startsWith('천간합'))) cands.push([3.2,'운명의 쌍성']);
+    if((r.combos||[]).some(c=>c.startsWith('육합')))   cands.push([3.1,'첫 잔 쌍둥이자리']);
+    if((r.combos||[]).some(c=>c.startsWith('충')))     cands.push([1.05,'불꽃 튀는 유성']);
+    if(fill) cands.push([fill,'서로를 밝혀주는 별']);
+    if(r.same) cands.push([1,'같은 하늘의 별']);
+    if(!cands.length) return '같은 밤하늘 아래';
+    cands.sort((a,b)=>b[0]-a[0]);
+    return cands[0][1];
+  }
+
+  function starG(x,y,name,mine,delay){
+    return `<g class="star" style="animation-delay:${delay}s">
+      <text x="${x}" y="${y}" class="glyph ${mine?'g-me':'g-fr'}" text-anchor="middle" dominant-baseline="central">✦</text>
+      <text x="${x}" y="${y+(mine?36:26)}" class="sname${mine?' mine':''}" text-anchor="middle">${esc(name)}</text>
+    </g>`;
+  }
+  function render(){
+    const svg=document.getElementById('skySvg');
+    document.getElementById('skyEmpty').style.display = me ? 'none' : 'flex';
+    if(!me){ svg.innerHTML=''; return; }
+    let s='';
+    friends.forEach((f,i)=>{
+      const [x,y]=SLOTS[i];
+      const mx=(ME[0]+x)/2, my=(ME[1]+y)/2;
+      s+=`<line class="link" x1="${ME[0]}" y1="${ME[1]}" x2="${x}" y2="${y}"/>`;
+      s+=`<text class="linklab" x="${mx}" y="${my-5}" text-anchor="middle">${esc(f.label)}</text>`;
+      s+=`<text class="linkscore" x="${mx}" y="${my+9}" text-anchor="middle">케미 ${f.score}점</text>`;
+    });
+    s+=starG(ME[0],ME[1],me.name,true,0);
+    friends.forEach((f,i)=>{ const [x,y]=SLOTS[i]; s+=starG(x,y,f.name,false,f.fresh?0.05:0); f.fresh=false; });
+    svg.innerHTML=s;
+  }
+
+  document.getElementById('myGo').onclick=async ()=>{
+    showErr('myErr','');
+    const bv=document.getElementById('myBirth').value;
+    if(!bv){ showErr('myErr','생년월일을 입력해 주세요.'); return; }
+    const btn=document.getElementById('myGo'); btn.disabled=true; btn.textContent='별 띄우는 중...';
+    try{
+      const p=parseBirth(bv);
+      const r=await callPair(p,p); // 같은 사람을 넣어 내 일간만 계산 (Gemini 미사용)
+      me={ name:document.getElementById('myName').value.trim()||'나', ...p };
+      document.getElementById('ilganLine').textContent =
+        `내 별 · 일간 ${r.aIlgan.hangul}(${r.aIlgan.hanja}) — ${r.aIlgan.오행}의 기운`;
+      document.getElementById('meCard').style.display='none';
+      document.getElementById('frCard').style.display='block';
+      render();
+    }catch(e){ showErr('myErr',e.message); }
+    finally{ btn.disabled=false; btn.textContent='✦ 내 별 띄우기'; }
+  };
+
+  document.getElementById('frGo').onclick=async ()=>{
+    showErr('frErr','');
+    if(friends.length>=4){ showErr('frErr','데모에서는 최대 4명까지 띄울 수 있어요.'); return; }
+    const bv=document.getElementById('frBirth').value;
+    if(!bv){ showErr('frErr','인연의 생년월일을 입력해 주세요.'); return; }
+    const btn=document.getElementById('frGo'); btn.disabled=true; btn.textContent='인연 찾는 중...';
+    try{
+      const p=parseBirth(bv);
+      const r=await callPair({year:me.year,month:me.month,day:me.day,hourUnknown:true}, p);
+      friends.push({ name:document.getElementById('frName').value.trim()||`별${friends.length+1}`,
+        ...p, score:r.score, label:labelOf(r), fresh:true });
+      document.getElementById('frName').value=''; document.getElementById('frBirth').value='';
+      document.getElementById('frCnt').textContent=`${friends.length}/4`;
+      render();
+    }catch(e){ showErr('frErr',e.message); }
+    finally{ btn.disabled=false; btn.textContent='🌟 인연 별 띄우기'; }
+  };
+</script>
+</body>
+</html>

@@ -72,6 +72,14 @@
   .slot.locked .badge{top:-10px; left:50%; transform:translateX(-50%); background:#dde3ee; color:#7a86a0;}
   .slot.locked .s-img, .slot.locked .s-t, .slot.locked .s-s{opacity:.42;}
   .lock{position:absolute; top:14px; right:15px; font-size:20px; opacity:.85;}
+  .slot.demo{cursor:pointer; border:2px solid #7b5cf0; transition:transform .1s;
+    background:linear-gradient(135deg,#ffffff 0%,#f3f0fe 100%);}
+  .slot.demo:active{transform:scale(.97);}
+  .slot.demo .badge{top:-10px; left:50%; transform:translateX(-50%);
+    background:linear-gradient(90deg,#7b5cf0,#b44cf0); color:#fff;
+    box-shadow:0 3px 8px rgba(123,92,240,.4);}
+  .slot.demo .s-t{color:#5b3fd4;}
+  .slot.demo .s-img{animation:bounce 2.6s ease-in-out infinite;}
 
   /* ── 프로모션 배너 (게임 슬롯과 구분되는 광고 영역) ── */
   .promo{margin-top:18px; position:relative; overflow:hidden; border-radius:22px;
@@ -164,12 +172,11 @@
       <div class="s-t">술게임 라이어</div>
       <div class="s-s">이 중에 라이어가<br>한 명 있다</div>
     </div>
-    <div class="slot locked">
-      <span class="badge">COMING SOON</span>
-      <span class="lock">🔒</span>
-      <img class="s-img" src="assets/deogi-5.png" alt="병뚜껑 탁탁" />
-      <div class="s-t">병뚜껑 탁탁</div>
-      <div class="s-s">오늘의 술자리<br>미니게임</div>
+    <div class="slot demo" id="slotUniverse">
+      <span class="badge">DEMO</span>
+      <img class="s-img" src="assets/deogi-5.png" alt="인연 유니버스" />
+      <div class="s-t">인연 유니버스</div>
+      <div class="s-s">우리는 어떤 별자리로<br>이어질까?</div>
     </div>
   </div>
 
@@ -246,6 +253,7 @@
   const kakao=document.getElementById('kakaoBtn');
 
   document.getElementById('slotSaju').onclick=()=>{ gate.classList.add('show'); };
+  document.getElementById('slotUniverse').onclick=()=>{ location.href='universe.html'; };
   document.getElementById('gateClose').onclick=()=>{ gate.classList.remove('show'); };
   gate.onclick=(e)=>{ if(e.target===gate) gate.classList.remove('show'); };
 
