@@ -87,6 +87,7 @@
   .l1 b{color:#fff; font-weight:800;}
   .llab{color:var(--gold-d); font-weight:800; font-size:12.5px;}
   .lchem{margin-left:auto; color:#9db2dd; font-weight:800; font-size:12px; white-space:nowrap;}
+  .l-basis{font-size:11px; color:var(--gold-d); opacity:.92; margin-top:3px; line-height:1.5;}
   .l2{font-size:11.5px; color:var(--sub); margin-top:2px; line-height:1.55;}
 
   .note{font-size:12px; color:var(--sub); text-align:center; line-height:1.75; margin:26px 4px 14px;}
@@ -158,28 +159,55 @@
   const SLOTS=[[80,64],[288,72],[48,196],[312,200],[178,304]];
   let me=null; const friends=[];
 
-  /* ═══ 예시 유니버스 설정 — 데이터·라벨 설명 한곳 관리 ═══
-     예시 생년월일은 /api/pair 실제 계산으로 라벨 5종이 다르게 나오도록 고른 값 */
+  /* ═══ 예시 유니버스 설정 — 데이터 한곳 관리 ═══
+     예시 생년월일은 /api/pair 실제 계산으로 인연 유형이 다양하게 나오도록 고른 값 */
   const EX = {
     me: { name:'나 (예시)', birth:'1995-07-15' },
     friends: [
-      { name:'김태양', birth:'1993-04-11' }, // 천간합 → 운명의 쌍성
-      { name:'이보라', birth:'1996-12-23' }, // 육합 → 첫 잔 쌍둥이자리
-      { name:'박도윤', birth:'1991-05-07' }, // 충 → 불꽃 튀는 유성
-      { name:'최여름', birth:'1998-02-07' }, // 보완 → 서로를 밝혀주는 별
-      { name:'정하늘', birth:'1994-06-07' }, // 무난 → 같은 밤하늘 아래
+      { name:'김태양', birth:'1993-04-11' }, // 천간합 → 하늘이 묶어준 짝꿍
+      { name:'이보라', birth:'1996-12-23' }, // 육합 → 내 옆자리 전담 단짝
+      { name:'박도윤', birth:'1991-05-07' }, // 충 → 투닥투닥 평생 맞수
+      { name:'최여름', birth:'1998-02-07' }, // 보완 → 충전 귀인/온기 인연
+      { name:'정하늘', birth:'1994-06-07' }, // 무난 → 서서히 물들어가는 인연
     ],
   };
-  const LABEL_DESC = {
-    '운명의 쌍성':'처음 만나도 오래 본 사이처럼 착 붙는 인연',
-    '첫 잔 쌍둥이자리':'옆에 있으면 편해서 잔이 저절로 채워지는 사이',
-    '불꽃 튀는 유성':'투닥거리면서도 서로를 못 놓는 자극 케미',
-    '서로를 밝혀주는 별':'내게 없는 기운을 채워주는 귀한 인연',
-    '같은 하늘의 별':'설명 없이도 손발이 맞는 단짝',
-    '같은 밤하늘 아래':'천천히 서로를 알아가는 인연',
+
+  /* ═══ 인연족보 — 유형 판정·문구 설정 한곳 관리 ═══
+     우선순위: 천간합 > 육합 > 충 > 보완받음 > 보완줌 > 같은기운 > 무난
+     {나일간}·{상대일간}·{오행}은 실제 데이터로 치환됨. short는 밤하늘 별 옆 축약 라벨 */
+  const REL = {
+    천간합: { label:'하늘이 묶어준 짝꿍', short:'묶인 짝꿍',
+      basis:'{나일간}과 {상대일간}이 천간합으로 딱 붙는 구조 — 사주가 먼저 서로를 알아본 사이',
+      drink:'첫 잔만 부딪혀도 텐션이 맞아 마지막까지 같이 남는 조합',
+      daily:'연락이 뜸해도 어색함 제로, 만나면 어제 본 사이' },
+    육합: { label:'내 옆자리 전담 단짝', short:'옆자리 단짝',
+      basis:'일지끼리 육합 — 곁에 있을 때 가장 편안해지는 자리 배치',
+      drink:'옆에 앉으면 잔이 저절로 채워지고 얘기가 끊기지 않는 사이',
+      daily:'굳이 약속 안 잡아도 자연스럽게 자주 보게 되는 인연' },
+    충: { label:'투닥투닥 평생 맞수', short:'평생 맞수',
+      basis:'일지끼리 충(沖) — 부딪히는 만큼 서로에게 자극이 되는 구조',
+      drink:'안주 하나로도 토론이 열리는 조합, 근데 제일 늦게까지 남는 건 이 둘',
+      daily:'사사건건 의견은 갈려도 정작 큰일엔 제일 먼저 달려오는 사이' },
+    보완받음: { label:'내 기운 충전 귀인', short:'충전 귀인',
+      basis:'내게 없는 {오행} 기운을 가득 채워주는 사주 — 곁에 두면 이득',
+      drink:'이 사람과 마시는 날은 이상하게 컨디션이 살아나는 날',
+      daily:'지칠 때 만나면 배터리 충전되듯 기운 나는 인연' },
+    보완줌: { label:'내 온기가 필요한 인연', short:'온기 인연',
+      basis:'상대에게 없는 {오행} 기운을 내가 채워주는 구조 — 나 없인 허전할 사이',
+      drink:'내가 챙겨줘야 마음이 놓이는데, 그게 싫지 않은 조합',
+      daily:'은근히 나를 찾고 기대는, 지켜주고 싶은 인연' },
+    같은기운: { label:'같은 물에서 자란 판박이', short:'판박이',
+      basis:'일간 오행이 같은 {오행} 동족 — 설명이 필요 없는 케미',
+      drink:'주종도 안주 취향도 겹쳐서 주문이 3초 만에 끝나는 사이',
+      daily:'손발이 착착 맞아 뭘 해도 편한, 거울 같은 인연' },
+    무난: { label:'서서히 물들어가는 인연', short:'물드는 인연',
+      basis:'뚜렷한 합도 충도 없는 담백한 구조 — 시간이 빚어가는 사이',
+      drink:'자극적이진 않지만 자리가 거듭될수록 편해지는 조합',
+      daily:'급하지 않게, 오래 두고 볼수록 진가가 나오는 인연' },
   };
   const EL_STAR = {목:'#4cc98a',화:'#ff7a6e',토:'#ffc457',금:'#c3cbd8',수:'#6ea8ff'};
   function chemOf(score){ return Math.min(98, 62 + score*4); } // 케미 지수 환산
+  function ilganName(i){ return i.hangul + i.오행; } // 예: 정+화 → 정화
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
   function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display=msg?'block':'none'; }
@@ -193,18 +221,31 @@
     return data;
   }
 
-  // 인연 라벨 — 복수 해당 시 점수(기여도) 높은 것 우선
-  function labelOf(r){
-    const fill=(r.fillAtoB?.length||0)+(r.fillBtoA?.length||0);
-    const cands=[];
-    if((r.combos||[]).some(c=>c.startsWith('천간합'))) cands.push([3.2,'운명의 쌍성']);
-    if((r.combos||[]).some(c=>c.startsWith('육합')))   cands.push([3.1,'첫 잔 쌍둥이자리']);
-    if((r.combos||[]).some(c=>c.startsWith('충')))     cands.push([1.05,'불꽃 튀는 유성']);
-    if(fill) cands.push([fill,'서로를 밝혀주는 별']);
-    if(r.same) cands.push([1,'같은 하늘의 별']);
-    if(!cands.length) return '같은 밤하늘 아래';
-    cands.sort((a,b)=>b[0]-a[0]);
-    return cands[0][1];
+  // 인연족보 유형 판정 — 우선순위: 천간합 > 육합 > 충 > 보완받음 > 보완줌 > 같은기운 > 무난
+  function relTexts(r){
+    const combos=r.combos||[];
+    let key='무난', els=null;
+    if(combos.some(c=>c.startsWith('천간합'))) key='천간합';
+    else if(combos.some(c=>c.startsWith('육합'))) key='육합';
+    else if(combos.some(c=>c.startsWith('충'))) key='충';
+    else if(r.fillBtoA && r.fillBtoA.length){ key='보완받음'; els=r.fillBtoA; }
+    else if(r.fillAtoB && r.fillAtoB.length){ key='보완줌'; els=r.fillAtoB; }
+    else if(r.same) key='같은기운';
+    const cfg=REL[key];
+    // 받침 유무에 따라 조사 선택 (과/와, 이/가)
+    const josa=(w,withBat,noBat)=>{
+      const c=w.charCodeAt(w.length-1);
+      if(c<0xAC00||c>0xD7A3) return withBat;
+      return ((c-0xAC00)%28===0) ? noBat : withBat;
+    };
+    const na=ilganName(r.aIlgan), sang=ilganName(r.bIlgan);
+    const sub=s=>s
+      .replace('{나일간}과', na+josa(na,'과','와'))
+      .replace('{상대일간}이', sang+josa(sang,'이','가'))
+      .replace('{나일간}', na)
+      .replace('{상대일간}', sang)
+      .replace('{오행}', els ? els.join('·') : r.aIlgan.오행);
+    return { key, label:cfg.label, short:cfg.short, basis:sub(cfg.basis), drink:cfg.drink, daily:cfg.daily };
   }
 
   function exChip(x,y){
@@ -228,7 +269,7 @@
       const mx=(ME[0]+x)/2, my=(ME[1]+y)/2;
       const fr=f.fresh?' style="animation:fadein .8s ease"':' style="animation:none"';
       s+=`<line class="link" x1="${ME[0]}" y1="${ME[1]}" x2="${x}" y2="${y}"${fr}/>`;
-      s+=`<text class="linklab" x="${mx}" y="${my-5}" text-anchor="middle"${fr}>${esc(f.label)}</text>`;
+      s+=`<text class="linklab" x="${mx}" y="${my-5}" text-anchor="middle"${fr}>${esc(f.short)}</text>`;
       s+=`<text class="linkscore" x="${mx}" y="${my+9}" text-anchor="middle"${fr}>케미 ${f.chem}</text>`;
     });
     s+=starG(ME[0],ME[1],me.name,true,me.fresh,me.example); me.fresh=false;
@@ -244,7 +285,9 @@
         <span class="lstar" style="color:${EL_STAR[f.el]||'#aecbff'}">✦</span>
         <div class="lbody">
           <div class="l1"><b>${esc(f.name)}</b><span class="llab">${esc(f.label)}</span><span class="lchem">케미 ${f.chem}</span></div>
-          <div class="l2">${LABEL_DESC[f.label]||''}</div>
+          <div class="l-basis">${esc(f.basis)}</div>
+          <div class="l2">🍶 ${esc(f.drink)}</div>
+          <div class="l2">☀️ ${esc(f.daily)}</div>
         </div>
       </div>`).join('');
   }
@@ -277,7 +320,7 @@
       const p=parseBirth(bv);
       const r=await callPair({year:me.year,month:me.month,day:me.day,hourUnknown:true}, p);
       friends.push({ name:document.getElementById('frName').value.trim()||`별${friends.length+1}`,
-        ...p, score:r.score, chem:chemOf(r.score), el:r.bIlgan.오행, label:labelOf(r), example:false, fresh:true });
+        ...p, score:r.score, chem:chemOf(r.score), el:r.bIlgan.오행, ...relTexts(r), example:false, fresh:true });
       document.getElementById('frName').value=''; document.getElementById('frBirth').value='';
       document.getElementById('frCnt').textContent=`${friends.length}/4`;
       render(); renderList();
@@ -313,7 +356,7 @@
         const r=await callPair(mp,p);
         if(!me || !me.example) return; // 로딩 중 사용자가 예시를 지운 경우 중단
         friends.push({ name:ef.name, ...p, score:r.score, chem:chemOf(r.score),
-          el:r.bIlgan.오행, label:labelOf(r), example:true, fresh:true });
+          el:r.bIlgan.오행, ...relTexts(r), example:true, fresh:true });
         render(); renderList();
         await new Promise(res=>setTimeout(res,380)); // 순차 팝 등장
       }
