@@ -41,8 +41,11 @@
   .linklab{fill:var(--gold-d); font-size:11px; font-weight:800; letter-spacing:.3px; animation:fadein .8s ease;}
   .linkscore{fill:#7f92bd; font-size:9.5px; font-weight:600; animation:fadein .8s ease;}
   @keyframes fadein{from{opacity:0;} to{opacity:1;}}
-  .star{transform-box:fill-box; transform-origin:center; animation:pop .5s cubic-bezier(.3,1.6,.5,1) backwards;}
+  .star{transform-box:fill-box; transform-origin:center;}
+  .star.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1) backwards;}
   @keyframes pop{0%{transform:scale(0);} 100%{transform:scale(1);}}
+  .exchip-r{fill:rgba(255,255,255,.12); stroke:rgba(157,189,228,.4); stroke-width:.6;}
+  .exchip-t{fill:#aabbdf; font-size:8.5px; font-weight:700; letter-spacing:1.5px;}
   .glyph{animation:starTw 2.8s ease-in-out infinite;}
   @keyframes starTw{0%,100%{opacity:1;} 50%{opacity:.62;}}
   .g-me{font-size:46px; fill:var(--gold); filter:drop-shadow(0 0 8px rgba(255,215,106,.85));}
@@ -70,6 +73,22 @@
   .go:disabled{opacity:.45;}
   .err{color:#ff9c94; font-size:12.5px; margin-top:8px; display:none;}
 
+  .clear-ex{display:none; margin:0 auto 2px; background:rgba(255,255,255,.08); border:1px solid var(--line);
+    color:var(--ink); font-size:12.5px; font-weight:700; border-radius:999px; padding:8px 18px; cursor:pointer;
+    transition:transform .08s, background .15s;}
+  .clear-ex:active{transform:scale(.96); background:rgba(255,255,255,.14);}
+
+  .lrow{display:flex; gap:11px; align-items:flex-start; padding:10px 2px; border-bottom:1px solid rgba(157,189,228,.13);}
+  .lrow:last-child{border-bottom:none; padding-bottom:2px;}
+  .lrow:first-child{padding-top:2px;}
+  .lstar{font-size:17px; line-height:1.35; flex-shrink:0; filter:drop-shadow(0 0 4px currentColor);}
+  .lbody{flex:1; min-width:0;}
+  .l1{display:flex; align-items:baseline; gap:7px; font-size:13.5px; flex-wrap:wrap;}
+  .l1 b{color:#fff; font-weight:800;}
+  .llab{color:var(--gold-d); font-weight:800; font-size:12.5px;}
+  .lchem{margin-left:auto; color:#9db2dd; font-weight:800; font-size:12px; white-space:nowrap;}
+  .l2{font-size:11.5px; color:var(--sub); margin-top:2px; line-height:1.55;}
+
   .note{font-size:12px; color:var(--sub); text-align:center; line-height:1.75; margin:26px 4px 14px;}
   .saju-btn{display:block; text-align:center; text-decoration:none; padding:14px; border-radius:13px;
     background:transparent; border:1.5px solid var(--gold-d); color:var(--gold-d);
@@ -86,11 +105,17 @@
     <p>내 별자리에 인연을 띄워보세요</p>
   </header>
 
+  <button class="clear-ex" id="exClear">✨ 예시 지우고 내 별 띄우기</button>
   <div class="sky">
     <svg id="skySvg" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg"></svg>
     <div class="empty" id="skyEmpty">아직 밤하늘이 비어 있어요<br>아래에서 내 별을 먼저 띄워주세요 ✦</div>
   </div>
   <div class="ilgan-line" id="ilganLine"></div>
+
+  <div class="card" id="listCard" style="display:none">
+    <div class="c-t">🌌 인연 리스트</div>
+    <div id="listRows"></div>
+  </div>
 
   <div class="card" id="meCard">
     <div class="c-t">① 내 별 띄우기</div>
@@ -130,8 +155,31 @@
   })();
 
   const ME=[180,164];
-  const SLOTS=[[76,70],[286,80],[64,262],[292,254]];
+  const SLOTS=[[80,64],[288,72],[48,196],[312,200],[178,304]];
   let me=null; const friends=[];
+
+  /* ═══ 예시 유니버스 설정 — 데이터·라벨 설명 한곳 관리 ═══
+     예시 생년월일은 /api/pair 실제 계산으로 라벨 5종이 다르게 나오도록 고른 값 */
+  const EX = {
+    me: { name:'나 (예시)', birth:'1995-07-15' },
+    friends: [
+      { name:'김태양', birth:'1993-04-11' }, // 천간합 → 운명의 쌍성
+      { name:'이보라', birth:'1996-12-23' }, // 육합 → 첫 잔 쌍둥이자리
+      { name:'박도윤', birth:'1991-05-07' }, // 충 → 불꽃 튀는 유성
+      { name:'최여름', birth:'1998-02-07' }, // 보완 → 서로를 밝혀주는 별
+      { name:'정하늘', birth:'1994-06-07' }, // 무난 → 같은 밤하늘 아래
+    ],
+  };
+  const LABEL_DESC = {
+    '운명의 쌍성':'처음 만나도 오래 본 사이처럼 착 붙는 인연',
+    '첫 잔 쌍둥이자리':'옆에 있으면 편해서 잔이 저절로 채워지는 사이',
+    '불꽃 튀는 유성':'투닥거리면서도 서로를 못 놓는 자극 케미',
+    '서로를 밝혀주는 별':'내게 없는 기운을 채워주는 귀한 인연',
+    '같은 하늘의 별':'설명 없이도 손발이 맞는 단짝',
+    '같은 밤하늘 아래':'천천히 서로를 알아가는 인연',
+  };
+  const EL_STAR = {목:'#4cc98a',화:'#ff7a6e',토:'#ffc457',금:'#c3cbd8',수:'#6ea8ff'};
+  function chemOf(score){ return Math.min(98, 62 + score*4); } // 케미 지수 환산
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
   function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display=msg?'block':'none'; }
@@ -159,10 +207,15 @@
     return cands[0][1];
   }
 
-  function starG(x,y,name,mine,delay){
-    return `<g class="star" style="animation-delay:${delay}s">
+  function exChip(x,y){
+    return `<rect class="exchip-r" x="${x-16}" y="${y-7}" width="32" height="13" rx="6.5"/>
+      <text class="exchip-t" x="${x}" y="${y+3}" text-anchor="middle">예시</text>`;
+  }
+  function starG(x,y,name,mine,fresh,example){
+    return `<g class="star${fresh?' pop':''}">
       <text x="${x}" y="${y}" class="glyph ${mine?'g-me':'g-fr'}" text-anchor="middle" dominant-baseline="central">✦</text>
       <text x="${x}" y="${y+(mine?36:26)}" class="sname${mine?' mine':''}" text-anchor="middle">${esc(name)}</text>
+      ${example?exChip(x, y-(mine?36:26)):''}
     </g>`;
   }
   function render(){
@@ -173,13 +226,27 @@
     friends.forEach((f,i)=>{
       const [x,y]=SLOTS[i];
       const mx=(ME[0]+x)/2, my=(ME[1]+y)/2;
-      s+=`<line class="link" x1="${ME[0]}" y1="${ME[1]}" x2="${x}" y2="${y}"/>`;
-      s+=`<text class="linklab" x="${mx}" y="${my-5}" text-anchor="middle">${esc(f.label)}</text>`;
-      s+=`<text class="linkscore" x="${mx}" y="${my+9}" text-anchor="middle">케미 ${f.score}점</text>`;
+      const fr=f.fresh?' style="animation:fadein .8s ease"':' style="animation:none"';
+      s+=`<line class="link" x1="${ME[0]}" y1="${ME[1]}" x2="${x}" y2="${y}"${fr}/>`;
+      s+=`<text class="linklab" x="${mx}" y="${my-5}" text-anchor="middle"${fr}>${esc(f.label)}</text>`;
+      s+=`<text class="linkscore" x="${mx}" y="${my+9}" text-anchor="middle"${fr}>케미 ${f.chem}</text>`;
     });
-    s+=starG(ME[0],ME[1],me.name,true,0);
-    friends.forEach((f,i)=>{ const [x,y]=SLOTS[i]; s+=starG(x,y,f.name,false,f.fresh?0.05:0); f.fresh=false; });
+    s+=starG(ME[0],ME[1],me.name,true,me.fresh,me.example); me.fresh=false;
+    friends.forEach((f,i)=>{ const [x,y]=SLOTS[i]; s+=starG(x,y,f.name,false,f.fresh,f.example); f.fresh=false; });
     svg.innerHTML=s;
+  }
+  function renderList(){
+    const card=document.getElementById('listCard');
+    if(!friends.length){ card.style.display='none'; return; }
+    card.style.display='block';
+    document.getElementById('listRows').innerHTML = friends.map(f=>
+      `<div class="lrow">
+        <span class="lstar" style="color:${EL_STAR[f.el]||'#aecbff'}">✦</span>
+        <div class="lbody">
+          <div class="l1"><b>${esc(f.name)}</b><span class="llab">${esc(f.label)}</span><span class="lchem">케미 ${f.chem}</span></div>
+          <div class="l2">${LABEL_DESC[f.label]||''}</div>
+        </div>
+      </div>`).join('');
   }
 
   document.getElementById('myGo').onclick=async ()=>{
@@ -190,7 +257,7 @@
     try{
       const p=parseBirth(bv);
       const r=await callPair(p,p); // 같은 사람을 넣어 내 일간만 계산 (Gemini 미사용)
-      me={ name:document.getElementById('myName').value.trim()||'나', ...p };
+      me={ name:document.getElementById('myName').value.trim()||'나', ...p, fresh:true, example:false };
       document.getElementById('ilganLine').textContent =
         `내 별 · 일간 ${r.aIlgan.hangul}(${r.aIlgan.hanja}) — ${r.aIlgan.오행}의 기운`;
       document.getElementById('meCard').style.display='none';
@@ -210,13 +277,48 @@
       const p=parseBirth(bv);
       const r=await callPair({year:me.year,month:me.month,day:me.day,hourUnknown:true}, p);
       friends.push({ name:document.getElementById('frName').value.trim()||`별${friends.length+1}`,
-        ...p, score:r.score, label:labelOf(r), fresh:true });
+        ...p, score:r.score, chem:chemOf(r.score), el:r.bIlgan.오행, label:labelOf(r), example:false, fresh:true });
       document.getElementById('frName').value=''; document.getElementById('frBirth').value='';
       document.getElementById('frCnt').textContent=`${friends.length}/4`;
-      render();
+      render(); renderList();
     }catch(e){ showErr('frErr',e.message); }
     finally{ btn.disabled=false; btn.textContent='🌟 인연 별 띄우기'; }
   };
+
+  // ── 예시 유니버스 프리로드 / 초기화 ──
+  function resetToEmpty(){
+    me=null; friends.length=0;
+    document.getElementById('exClear').style.display='none';
+    document.getElementById('meCard').style.display='block';
+    document.getElementById('frCard').style.display='none';
+    document.getElementById('listCard').style.display='none';
+    document.getElementById('ilganLine').textContent='';
+    document.getElementById('frCnt').textContent='0/4';
+    render();
+  }
+  document.getElementById('exClear').onclick=resetToEmpty;
+
+  (async function preloadExample(){
+    try{
+      const mp=parseBirth(EX.me.birth);
+      const r0=await callPair(mp,mp);
+      me={ name:EX.me.name, ...mp, fresh:true, example:true };
+      document.getElementById('ilganLine').textContent =
+        `내 별 · 일간 ${r0.aIlgan.hangul}(${r0.aIlgan.hanja}) — ${r0.aIlgan.오행}의 기운 (예시)`;
+      document.getElementById('meCard').style.display='none';
+      document.getElementById('exClear').style.display='block';
+      render();
+      for(const ef of EX.friends){
+        const p=parseBirth(ef.birth);
+        const r=await callPair(mp,p);
+        if(!me || !me.example) return; // 로딩 중 사용자가 예시를 지운 경우 중단
+        friends.push({ name:ef.name, ...p, score:r.score, chem:chemOf(r.score),
+          el:r.bIlgan.오행, label:labelOf(r), example:true, fresh:true });
+        render(); renderList();
+        await new Promise(res=>setTimeout(res,380)); // 순차 팝 등장
+      }
+    }catch(e){ resetToEmpty(); } // API 실패 시 빈 입력 플로우로
+  })();
 </script>
 </body>
 </html>
