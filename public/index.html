@@ -44,8 +44,28 @@
   .sec-t{font-size:13px; color:var(--sub); margin:0 2px 12px; font-weight:700; letter-spacing:.5px;
     display:flex; align-items:center; gap:10px;}
   .sec-t::before, .sec-t::after{content:""; flex:1; height:1px; background:var(--line);}
+  /* ── EVENT 카드 (귀인 만날 결심 — 다크+핑크) ── */
+  .slot-event{position:relative; margin-top:-56px; cursor:pointer; color:#fff;
+    background:linear-gradient(140deg,#151515 0%,#1c1418 55%,#26151d 100%);
+    border:1.5px solid #46242f; border-radius:24px; padding:24px 20px;
+    display:flex; align-items:center; gap:15px;
+    box-shadow:0 10px 26px rgba(0,0,0,.42); transition:transform .1s;}
+  .slot-event:active{transform:scale(.98);}
+  .slot-event .badge{top:-11px; left:22px; background:#F7A8C4; color:#151515;
+    box-shadow:0 3px 10px rgba(247,168,196,.45); animation:pulse 1.8s ease-in-out infinite;}
+  .slot-event .est{position:absolute; color:#F7A8C4; pointer-events:none;
+    animation:dtw 2.4s ease-in-out infinite;}
+  .slot-event .e-ic{font-size:38px; flex-shrink:0; line-height:1;
+    filter:drop-shadow(0 4px 10px rgba(247,168,196,.35)); animation:bounce 2.6s ease-in-out infinite;}
+  .slot-event .e-t{font-size:21px; font-weight:900; letter-spacing:-.4px; line-height:1.25; color:#fff;}
+  .slot-event .e-t em{font-style:normal; color:#F7A8C4;}
+  .slot-event .e-s{font-size:12.5px; color:#cfa9ba; margin-top:5px; line-height:1.55; word-break:keep-all;}
+  .slot-event .e-cta{display:inline-block; margin-top:12px; color:#F7A8C4;
+    border:1.5px solid rgba(247,168,196,.65); font-size:13px; font-weight:800;
+    padding:8px 16px; border-radius:999px;}
+
   /* ── NOW OPEN 대형 카드 ── */
-  .slot-hero{position:relative; margin-top:-56px; background:linear-gradient(135deg,#ffffff 0%,#eef4fc 100%);
+  .slot-hero{position:relative; margin-top:16px; background:linear-gradient(135deg,#ffffff 0%,#eef4fc 100%);
     border:2px solid var(--blue); border-radius:24px; padding:26px 22px 24px; cursor:pointer;
     display:flex; align-items:center; gap:16px; box-shadow:0 10px 28px rgba(0,48,135,.18);
     transition:transform .1s, box-shadow .15s;}
@@ -180,6 +200,18 @@
 </div>
 
 <div class="wrap">
+  <div class="slot-event" id="slotEvent">
+    <span class="badge">EVENT 9.18</span>
+    <span class="est" style="top:16px; right:22px; font-size:13px;">✦</span>
+    <span class="est" style="bottom:16px; right:40px; font-size:9px; animation-delay:1.1s;">✦</span>
+    <span class="e-ic">💘</span>
+    <div>
+      <div class="e-t">좋은데이 <em>귀인 만날 결심</em></div>
+      <div class="e-s">사주로 찾는 나와 잘 맞는 인연 · 신청자 전원 사주 풀이 제공</div>
+      <span class="e-cta">내 인연사주 보러 가기 →</span>
+    </div>
+  </div>
+
   <div class="slot-hero" id="slotSaju">
     <span class="badge">NOW OPEN</span>
     <img class="h-img" src="assets/deogi-2.png" alt="굿데이 사주" />
@@ -322,6 +354,7 @@
 
   document.getElementById('slotSaju').onclick=()=>{ gate.classList.add('show'); };
   document.getElementById('slotUniverse').onclick=()=>{ location.href='universe.html'; };
+  document.getElementById('slotEvent').onclick=()=>{ location.href='gwiin.html'; };
   document.getElementById('gateClose').onclick=()=>{ gate.classList.remove('show'); };
   gate.onclick=(e)=>{ if(e.target===gate) gate.classList.remove('show'); };
 
