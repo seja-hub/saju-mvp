@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<!-- '귀인 만날 결심' 운영자용 매칭 도구 — URL 직접 접근 전용(랜딩 미노출), /api/matching(계산 전용) 사용 -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>귀인 매칭 보드 (운영자용)</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  :root{
+    --bg:#121212; --card:#1b1b1d; --pink:#F7A8C4; --blue:#7fb2f0;
+    --ink:#f4f0f2; --sub:#9b8e95; --line:#332b30; --field:#171719;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  input,select,button{font-family:inherit;}
+  body{margin:0; background:var(--bg); color:var(--ink); min-height:100vh;
+    background-image:radial-gradient(circle at 50% -14%, #2a1620 0%, var(--bg) 55%);
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.6; padding:0 0 60px;}
+  .wrap{max-width:760px; margin:0 auto; padding:0 16px;}
+
+  header{text-align:center; padding:30px 0 14px;}
+  .op-pill{display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:2px;
+    color:#151515; background:#c9c9c9; border-radius:999px; padding:4px 13px;}
+  header h1{font-size:25px; margin:12px 0 4px; font-weight:900; letter-spacing:-.5px; color:#fff;}
+  header h1 em{font-style:normal; color:var(--pink);}
+  header p{margin:0; color:var(--sub); font-size:12.5px;}
+
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;}
+  .side{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 12px;}
+  .side .s-t{font-size:13.5px; font-weight:800; margin-bottom:10px;}
+  .side.m .s-t{color:var(--blue);} .side.f .s-t{color:var(--pink);}
+  .side .cnt{float:right; color:var(--sub); font-weight:600; font-size:11.5px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; min-height:8px;}
+  .chip{background:var(--field); border:1px solid var(--line); border-radius:999px; padding:5px 10px;
+    font-size:11.5px; font-weight:600; color:var(--ink);}
+  .side.m .chip b{color:var(--blue);} .side.f .chip b{color:var(--pink);}
+  .chip .x{margin-left:6px; color:#e0453c; cursor:pointer; font-weight:800;}
+  input,select{width:100%; padding:10px 10px; font-size:14px; border:1.5px solid var(--line);
+    border-radius:10px; background:var(--field); color:var(--ink); appearance:none;
+    margin-bottom:7px; color-scheme:dark;}
+  input:focus,select:focus{outline:none; border-color:var(--pink);}
+  .side.m input:focus,.side.m select:focus{border-color:var(--blue);}
+  .addBtn{width:100%; padding:10px; font-size:13px; font-weight:800; border:none; border-radius:10px;
+    cursor:pointer; color:#151515; transition:transform .08s, filter .15s;}
+  .addBtn:active{transform:scale(.97); filter:brightness(.92);}
+  .side.m .addBtn{background:var(--blue);} .side.f .addBtn{background:var(--pink);}
+
+  .run{width:100%; margin-top:14px; padding:16px; font-size:16px; font-weight:800; color:#151515;
+    background:linear-gradient(90deg,var(--pink),#f8bcd2); border:none; border-radius:14px; cursor:pointer;
+    transition:transform .08s, filter .15s;}
+  .run:active{transform:scale(.985); filter:brightness(.94);}
+  .run:disabled{opacity:.45;}
+  .err{color:#ff9c94; font-size:13px; padding:9px 2px; display:none;}
+  .loading{color:var(--sub); font-size:13.5px; padding:10px 2px;}
+
+  #results{margin-top:20px;}
+  .pcard{background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:16px 15px; margin-bottom:14px;}
+  .p-head{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:10px;}
+  .p-head b{font-size:16.5px; color:#fff;}
+  .p-head .g-m{color:var(--blue);} .p-head .g-f{color:var(--pink);}
+  .p-meta{font-size:11.5px; color:var(--sub);}
+  .copyBtn{margin-left:auto; background:var(--field); border:1px solid var(--line); color:var(--ink);
+    font-size:11.5px; font-weight:700; border-radius:999px; padding:6px 12px; cursor:pointer;}
+  .copyBtn:active{transform:scale(.95);}
+  .tops{background:var(--field); border:1px solid var(--line); border-radius:11px;
+    padding:10px 11px; margin-bottom:10px; font-size:12.5px;}
+  .tops .tl{margin:2px 0;}
+  .tops .pill{display:inline-block; background:rgba(247,168,196,.14); border:1px solid rgba(247,168,196,.4);
+    color:var(--pink); border-radius:999px; padding:1px 9px; font-weight:800; font-size:11.5px; margin-left:4px;}
+  .tops .tl.sool .pill{background:rgba(127,178,240,.12); border-color:rgba(127,178,240,.4); color:var(--blue);}
+  details.prow{border-bottom:1px solid rgba(51,43,48,.8);}
+  details.prow:last-child{border-bottom:none;}
+  details.prow summary{display:flex; align-items:center; gap:8px; padding:9px 3px; cursor:pointer;
+    list-style:none; font-size:13.5px;}
+  details.prow summary::-webkit-details-marker{display:none;}
+  .r-arrow{color:var(--sub); font-size:10px; transition:transform .15s;}
+  details[open] .r-arrow{transform:rotate(90deg);}
+  .r-name{font-weight:800; color:#fff; flex:1;}
+  .r-g{color:var(--pink); font-weight:800; font-size:12.5px; white-space:nowrap;}
+  .r-s{color:var(--blue); font-weight:800; font-size:12.5px; white-space:nowrap;}
+  .r-body{padding:2px 6px 11px 18px; font-size:12px; color:#cfc3ca; line-height:1.7;}
+  .r-body div::before{content:"· ";}
+  footer{text-align:center; color:var(--sub); font-size:11px; margin-top:26px; line-height:1.8;}
+  #toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:80;
+    background:rgba(247,168,196,.95); color:#151515; font-size:13px; font-weight:800;
+    padding:11px 20px; border-radius:999px; opacity:0; pointer-events:none; transition:opacity .25s;}
+  #toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="op-pill">운영자용 도구</span>
+    <h1>💘 <em>귀인 만날 결심</em> 매칭 보드</h1>
+    <p>9.18 금 19:00 · 전포 월하정 — 남녀 명단 입력 후 매칭 실행</p>
+  </header>
+
+  <div class="cols">
+    <div class="side m">
+      <div class="s-t">🙋‍♂️ 남측 명단 <span class="cnt" id="cntM">0/10</span></div>
+      <div class="chips" id="chipsM"></div>
+      <input id="nameM" type="text" placeholder="이름" maxlength="10" />
+      <input id="birthM" type="date" min="1920-01-01" />
+      <select id="hourM"><option value="unknown" selected>시간 모름</option></select>
+      <button class="addBtn" id="addM">＋ 남측 추가</button>
+    </div>
+    <div class="side f">
+      <div class="s-t">🙋‍♀️ 여측 명단 <span class="cnt" id="cntF">0/10</span></div>
+      <div class="chips" id="chipsF"></div>
+      <input id="nameF" type="text" placeholder="이름" maxlength="10" />
+      <input id="birthF" type="date" min="1920-01-01" />
+      <select id="hourF"><option value="unknown" selected>시간 모름</option></select>
+      <button class="addBtn" id="addF">＋ 여측 추가</button>
+    </div>
+  </div>
+
+  <button class="run" id="run">💞 매칭 실행</button>
+  <div class="err" id="err"></div>
+  <div id="results"></div>
+
+  <footer>재미로 보는 콘텐츠 · 만 19세 이상 · 운영자 전용(랜딩 미노출)</footer>
+</div>
+<div id="toast"></div>
+
+<script>
+  const sijin = ["子자시","丑축시","丑축시","寅인시","寅인시","卯묘시","卯묘시","辰진시","辰진시","巳사시","巳사시","午오시","午오시","未미시","未미시","申신시","申신시","酉유시","酉유시","戌술시","戌술시","亥해시","亥해시","子자시"];
+  ['hourM','hourF'].forEach(id=>{
+    const sel=document.getElementById(id);
+    for(let h=0; h<24; h++){
+      const o=document.createElement('option'); o.value=h;
+      o.textContent=`${String(h).padStart(2,'0')}시 ${sijin[h]}`;
+      sel.appendChild(o);
+    }
+  });
+
+  const males=[], females=[];
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function showErr(msg){ const e=document.getElementById('err'); e.textContent=msg; e.style.display=msg?'block':'none'; }
+  function toast(msg){
+    const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),1600);
+  }
+
+  function refresh(side){
+    const arr = side==='M'?males:females;
+    document.getElementById('cnt'+side).textContent=`${arr.length}/10`;
+    document.getElementById('chips'+side).innerHTML = arr.map((p,i)=>
+      `<span class="chip"><b>${esc(p.name)}</b> ${String(p.year).slice(2)}.${p.month}.${p.day}<span class="x" data-s="${side}" data-i="${i}">✕</span></span>`).join('');
+    document.querySelectorAll(`#chips${side} .x`).forEach(x=>x.onclick=()=>{
+      (x.dataset.s==='M'?males:females).splice(Number(x.dataset.i),1); refresh(x.dataset.s);
+    });
+  }
+  function add(side){
+    showErr('');
+    const arr = side==='M'?males:females;
+    if(arr.length>=10){ showErr('한쪽당 최대 10명까지예요.'); return; }
+    const bv=document.getElementById('birth'+side).value;
+    if(!bv){ showErr('추가할 사람의 생년월일을 입력해 주세요.'); return; }
+    const [y,m,d]=bv.split('-').map(Number);
+    const hv=document.getElementById('hour'+side).value;
+    const nm=document.getElementById('name'+side).value.trim() || (side==='M'?`남${arr.length+1}`:`여${arr.length+1}`);
+    arr.push({ name:nm, year:y, month:m, day:d, hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 });
+    document.getElementById('name'+side).value=''; document.getElementById('birth'+side).value='';
+    document.getElementById('hour'+side).value='unknown';
+    refresh(side);
+  }
+  document.getElementById('addM').onclick=()=>add('M');
+  document.getElementById('addF').onclick=()=>add('F');
+
+  let R=null; // 매칭 결과
+  document.getElementById('run').onclick=async ()=>{
+    showErr('');
+    if(!males.length || !females.length){ showErr('남측·여측 각각 1명 이상 입력해 주세요.'); return; }
+    const btn=document.getElementById('run'); btn.disabled=true;
+    const box=document.getElementById('results');
+    box.innerHTML='<div class="loading">사주 계산 중... (Gemini 미사용 · 즉시 계산)</div>';
+    try{
+      const res=await fetch('/api/matching',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({males,females})});
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.error||'계산에 실패했어요');
+      R=data; renderResults();
+    }catch(e){ box.innerHTML=''; showErr(e.message); }
+    finally{ btn.disabled=false; }
+  };
+
+  function partnersOf(side, idx){
+    // side 'M': 파트너는 여측 / side 'F': 남측
+    return R.pairs
+      .filter(p=> side==='M' ? p.mi===idx : p.fi===idx)
+      .map(p=>({ ...p, partner: side==='M' ? R.females[p.fi] : R.males[p.mi] }));
+  }
+  function personCard(side, idx){
+    const me = side==='M' ? R.males[idx] : R.females[idx];
+    const ps = partnersOf(side, idx);
+    const byG=[...ps].sort((a,b)=>b.gwiin-a.gwiin);
+    const byS=[...ps].sort((a,b)=>b.sool-a.sool);
+    const topG=byG.slice(0,2), topS=byS.slice(0,2);
+    const pill=(p,k)=>`<span class="pill">${esc(p.partner.name)} ${p[k]}점</span>`;
+    const rows=byG.map(p=>
+      `<details class="prow"><summary><span class="r-arrow">▶</span><span class="r-name">${esc(p.partner.name)}</span>
+        <span class="r-g">귀인 ${p.gwiin}점</span><span class="r-s">술친구 ${p.sool}점</span></summary>
+        <div class="r-body">${p.reasons.map(r=>`<div>${esc(r)}</div>`).join('')}</div>
+      </details>`).join('');
+    return `<div class="pcard">
+      <div class="p-head"><b class="${side==='M'?'g-m':'g-f'}">${esc(me.name)}</b>
+        <span class="p-meta">${side==='M'?'남':'여'} · 일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · ${me.mbti} · 테토 ${me.teto}%</span>
+        <button class="copyBtn" data-s="${side}" data-i="${idx}">📋 결과 복사</button></div>
+      <div class="tops">
+        <div class="tl">💘 나의 귀인 TOP 2 ${topG.map(p=>pill(p,'gwiin')).join('')}</div>
+        <div class="tl sool">🍶 나의 술친구 TOP 2 ${topS.map(p=>pill(p,'sool')).join('')}</div>
+      </div>
+      ${rows}
+    </div>`;
+  }
+  function renderResults(){
+    let h='';
+    R.males.forEach((_,i)=> h+=personCard('M',i));
+    R.females.forEach((_,i)=> h+=personCard('F',i));
+    document.getElementById('results').innerHTML=h;
+    document.querySelectorAll('.copyBtn').forEach(b=> b.onclick=()=>copyResult(b.dataset.s, Number(b.dataset.i)));
+    document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function copyText(side, idx){
+    const me = side==='M' ? R.males[idx] : R.females[idx];
+    const ps = partnersOf(side, idx);
+    const byG=[...ps].sort((a,b)=>b.gwiin-a.gwiin);
+    const byS=[...ps].sort((a,b)=>b.sool-a.sool);
+    const L=[];
+    L.push(`💘 좋은데이 귀인 만날 결심 — ${me.name}님 매칭 결과`);
+    L.push(`(일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · 예상 ${me.mbti} · 테토 ${me.teto}% / 에겐 ${me.egen}%)`);
+    L.push('');
+    L.push('[나의 귀인 TOP 2]');
+    byG.slice(0,2).forEach((p,i)=>L.push(`${i+1}. ${p.partner.name} — ${p.gwiin}점`));
+    L.push('');
+    L.push('[나의 술친구 TOP 2]');
+    byS.slice(0,2).forEach((p,i)=>L.push(`${i+1}. ${p.partner.name} — ${p.sool}점`));
+    L.push('');
+    L.push('[전체 결과 · 귀인점수 순]');
+    byG.forEach(p=>{
+      L.push(`▸ ${p.partner.name} — 귀인 ${p.gwiin}점 · 술친구 ${p.sool}점`);
+      p.reasons.forEach(r=>L.push(`   · ${r}`));
+    });
+    L.push('');
+    L.push('* 재미로 보는 콘텐츠예요 · 만 19세 이상');
+    return L.join('\n');
+  }
+  async function copyResult(side, idx){
+    const text=copyText(side, idx);
+    try{ await navigator.clipboard.writeText(text); }
+    catch{
+      const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    toast('복사 완료! 카톡에 붙여넣으세요 📋');
+  }
+</script>
+</body>
+</html>
