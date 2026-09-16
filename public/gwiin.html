@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!-- 좋은데이 귀인 만날 결심 (9.18 오프라인 행사) — 개인 인연사주 페이지. /api/reading section '인연사주' 사용 -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>좋은데이 귀인 만날 결심</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  :root{
+    --bg:#121212; --card:#1b1b1d; --pink:#F7A8C4; --pink-d:#d9819f;
+    --ink:#f4f0f2; --sub:#9b8e95; --line:#332b30; --field:#171719;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  input,select,button{font-family:inherit;}
+  body{margin:0; background:var(--bg); color:var(--ink); min-height:100vh;
+    background-image:radial-gradient(circle at 50% -14%, #2a1620 0%, var(--bg) 55%);
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.7; padding:0 0 54px;}
+  .wrap{max-width:440px; margin:0 auto; padding:0 18px;}
+
+  header{text-align:center; padding:36px 0 18px;}
+  .ev-pill{display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:2px;
+    color:#151515; background:var(--pink); border-radius:999px; padding:4px 13px;}
+  header h1{font-size:30px; margin:14px 0 6px; font-weight:900; letter-spacing:-.8px; line-height:1.25; color:#fff;}
+  header h1 em{font-style:normal; color:var(--pink);}
+  header p{margin:0; color:var(--sub); font-size:13.5px; font-weight:600;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:20px;
+    padding:24px 20px; margin:16px 0; box-shadow:0 6px 22px rgba(0,0,0,.35);}
+  label{display:block; font-size:12.5px; font-weight:700; margin:0 0 7px; letter-spacing:.3px;}
+  label .opt{color:var(--sub); font-weight:400;}
+  label .req{color:var(--pink); font-weight:800;}
+  .field{margin-bottom:16px;}
+  input,select{width:100%; padding:13px 14px; font-size:16px; border:1.5px solid var(--line);
+    border-radius:12px; background:var(--field); color:var(--ink); appearance:none;
+    transition:border-color .15s, box-shadow .15s; color-scheme:dark;}
+  input:focus,select:focus{outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(247,168,196,.15);}
+  .seg{display:flex; gap:8px;}
+  .seg button{flex:1; padding:12px 0; border:1.5px solid var(--line); background:var(--field);
+    border-radius:999px; font-size:14.5px; color:var(--sub); cursor:pointer; font-weight:700; transition:all .15s;}
+  .seg button.on{border-color:var(--pink); background:var(--pink); color:#151515;}
+  .btn{width:100%; padding:16px; font-size:16px; font-weight:800; color:#151515;
+    background:linear-gradient(90deg,var(--pink),#f8bcd2); border:none; border-radius:14px;
+    cursor:pointer; letter-spacing:.3px; transition:transform .08s, filter .15s;}
+  .btn:active{transform:scale(.985); filter:brightness(.94);}
+  .btn:disabled{opacity:.45;}
+  .hint{font-size:12px; color:var(--sub); margin:7px 2px 0;}
+  .err{color:#ff9c94; font-size:13.5px; padding:10px 2px; display:none;}
+
+  #answer{margin-top:4px;}
+  .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--pink);
+    border-radius:14px; padding:20px 18px; font-size:15px; animation:fadeUp .35s ease;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  .box .t{font-weight:800; color:var(--pink); margin-bottom:12px; font-size:14.5px; letter-spacing:.3px;}
+  .box p{margin:0 0 12px;} .box p:last-child{margin:0;}
+  .subh{display:block; color:var(--pink); font-weight:800; font-size:14px; margin:16px 0 6px; letter-spacing:.2px;}
+  .loading{color:var(--sub); font-size:14px; padding:12px 2px;}
+  .dot{display:inline-block; animation:b 1.2s infinite;}
+  .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+  @keyframes b{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+  .ev-info{text-align:center; margin-top:26px; font-size:13px; font-weight:700; color:var(--pink);
+    letter-spacing:.5px;}
+  footer{text-align:center; color:var(--sub); font-size:11.5px; margin-top:10px; line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="ev-pill">EVENT · 9.18</span>
+    <h1>좋은데이<br><em>귀인 만날 결심</em></h1>
+    <p>사주로 찾는 나와 잘 맞는 인연</p>
+  </header>
+
+  <div class="card" id="form">
+    <div class="field">
+      <label>이름 <span class="opt">(선택)</span></label>
+      <input id="name" type="text" placeholder="닉네임도 좋아요" maxlength="20" />
+    </div>
+    <div class="field">
+      <label>성별 <span class="req">*</span></label>
+      <div class="seg" id="genderSeg">
+        <button data-g="남">남</button><button data-g="여">여</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>생년월일 <span class="opt">(양력)</span> <span class="req">*</span></label>
+      <input id="birth" type="date" min="1920-01-01" />
+    </div>
+    <div class="field">
+      <label>태어난 시간</label>
+      <select id="hour"><option value="unknown" selected>시간 모름</option></select>
+      <div class="hint">시간을 모르면 ‘시간 모름’ 그대로 둬도 돼요.</div>
+    </div>
+    <button class="btn" id="go">💘 내 인연사주 보기</button>
+    <div class="err" id="formErr"></div>
+  </div>
+
+  <div id="answer"></div>
+
+  <div class="ev-info">9.18 금 19:00 · 전포 월하정</div>
+  <footer>재미로 보는 콘텐츠 · 만 19세 이상<br>지나친 음주는 건강에 해롭습니다</footer>
+</div>
+
+<script>
+  const sijin = ["子자시","丑축시","丑축시","寅인시","寅인시","卯묘시","卯묘시","辰진시","辰진시","巳사시","巳사시","午오시","午오시","未미시","未미시","申신시","申신시","酉유시","酉유시","戌술시","戌술시","亥해시","亥해시","子자시"];
+  (function(){
+    const sel=document.getElementById('hour');
+    for(let h=0; h<24; h++){
+      const o=document.createElement('option'); o.value=h;
+      const h12=(h%12)===0?12:h%12;
+      o.textContent=`${String(h).padStart(2,'0')}시 (${h<12?'오전':'오후'} ${h12}시·${sijin[h]})`;
+      sel.appendChild(o);
+    }
+  })();
+
+  let gender="";
+  document.querySelectorAll('#genderSeg button').forEach(b=>{ b.onclick=()=>{
+    document.querySelectorAll('#genderSeg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); gender=b.dataset.g;
+  };});
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function fmt(p){
+    const lines = esc(p).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').split('\n');
+    let out='', needBr=false;
+    for(const ln of lines){
+      const t=ln.trim();
+      if(t.startsWith('◆')){ out+=`<span class="subh">${t}</span>`; needBr=false; }
+      else if(t===''){ needBr=false; }
+      else { out+=(needBr?'<br>':'')+ln; needBr=true; }
+    }
+    return out;
+  }
+  function paras(text){ return text.split(/\n{2,}/).map(p=>`<p>${fmt(p)}</p>`).join(''); }
+  function dots(msg){ return `<div class="loading">${msg}<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`; }
+
+  document.getElementById('go').onclick = async ()=>{
+    const errEl=document.getElementById('formErr'); errEl.style.display='none';
+    const birth=document.getElementById('birth').value;
+    if(!gender){ errEl.textContent='성별을 선택해 주세요.'; errEl.style.display='block'; return; }
+    if(!birth){ errEl.textContent='생년월일을 입력해 주세요.'; errEl.style.display='block'; return; }
+    const [y,m,d]=birth.split('-').map(Number);
+    const hv=document.getElementById('hour').value;
+    const payload={ section:'인연사주', name:document.getElementById('name').value.trim(), gender,
+      year:y, month:m, day:d, hourUnknown:hv==='unknown', hour:hv==='unknown'?12:Number(hv), minute:0 };
+    const btn=document.getElementById('go'); btn.disabled=true; btn.textContent='인연사주 푸는 중...';
+    const ans=document.getElementById('answer');
+    ans.innerHTML=dots('내 인연 자리를 읽는 중');
+    try{
+      const res=await fetch('/api/reading',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)});
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.error||'오류가 발생했어요');
+      ans.innerHTML=`<div class="box"><div class="t">💘 나의 인연사주</div>${paras(data.text)}</div>`;
+      ans.scrollIntoView({behavior:'smooth', block:'start'});
+    }catch(e){
+      ans.innerHTML=''; errEl.textContent=e.message; errEl.style.display='block';
+    }finally{ btn.disabled=false; btn.textContent='💘 내 인연사주 보기'; }
+  };
+</script>
+</body>
+</html>
