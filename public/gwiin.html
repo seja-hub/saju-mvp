@@ -48,6 +48,31 @@
   .hint{font-size:12px; color:var(--sub); margin:7px 2px 0;}
   .err{color:#ff9c94; font-size:13.5px; padding:10px 2px; display:none;}
 
+  /* ── 사주 명식 카드 (다크+핑크) ── */
+  .saju-box{background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:20px 14px 18px; margin-bottom:12px; text-align:center; animation:fadeUp .35s ease;}
+  .s-date{font-size:12px; color:var(--sub); letter-spacing:1.5px;}
+  .pillars{display:flex; justify-content:center; align-items:stretch; gap:8px; margin:16px 0 4px;}
+  .pillar{flex:1; max-width:80px; position:relative; padding:7px 6px 8px; background:#232327;
+    border:1px solid rgba(255,255,255,.08); border-radius:12px;}
+  .pillar .glyphs{display:flex; flex-direction:column; gap:4px;}
+  .pillar .g{border-radius:8px; font-size:24px; font-weight:800; line-height:1.4; padding:1px 0;
+    color:#fff; border:1px solid rgba(255,255,255,.1);}
+  .pillar .g.none{background:#28282c; color:#5c5c66; border-color:rgba(255,255,255,.05);}
+  .pillar .role{font-size:10.5px; color:var(--pink); margin-top:6px; font-weight:700; letter-spacing:1px;}
+  .pillar .kr{font-size:11.5px; color:var(--sub);}
+  .pillar.me{border:2px solid var(--pink); box-shadow:0 4px 14px rgba(247,168,196,.22);}
+  .me-badge{position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--pink);
+    color:#151515; font-size:10px; font-weight:800; padding:2px 9px; border-radius:999px;
+    letter-spacing:1px; white-space:nowrap;}
+  .oh-chips{display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:6px; margin-top:13px;}
+  .el-chip{font-size:11.5px; font-weight:700; padding:3px 10px; border-radius:999px; color:#fff;
+    border:1px solid rgba(255,255,255,.12);}
+  .el-chip.max{font-size:13.5px; padding:5px 14px; border:1.5px solid #fff;
+    box-shadow:0 0 0 2px rgba(247,168,196,.4);}
+  .el-chip.zero{opacity:.35;}
+  .oh-sum{margin-top:11px; font-size:12.5px; color:var(--pink); font-weight:700;}
+
   #answer{margin-top:4px;}
   .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--pink);
     border-radius:14px; padding:20px 18px; font-size:15px; animation:fadeUp .35s ease;}
@@ -136,6 +161,36 @@
   function paras(text){ return text.split(/\n{2,}/).map(p=>`<p>${fmt(p)}</p>`).join(''); }
   function dots(msg){ return `<div class="loading">${msg}<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`; }
 
+  // ── 사주 명식 카드 렌더링 (saju.html 로직의 다크 버전) ──
+  const STEM_EL={'甲':'목','乙':'목','丙':'화','丁':'화','戊':'토','己':'토','庚':'금','辛':'금','壬':'수','癸':'수'};
+  const BRANCH_EL={'寅':'목','卯':'목','巳':'화','午':'화','辰':'토','戌':'토','丑':'토','未':'토','申':'금','酉':'금','亥':'수','子':'수'};
+  const EL_DARK={목:'#3a9d68',화:'#e05a4e',토:'#e8b04a',금:'#a8b0bd',수:'#5b7fc7'};
+  function glyph(ch, el){ return `<div class="g" style="background:${EL_DARK[el]}">${ch}</div>`; }
+  function renderMyeongsik(s, y, m, d){
+    const order=['년주','월주','일주','시주'];
+    const dateLine=`${y} · ${String(m).padStart(2,'0')} · ${String(d).padStart(2,'0')}`
+      + (s.시간보정?`  ·  진태양시 ${s.시간보정.hour}:${String(s.시간보정.minute).padStart(2,'0')} 보정`:'');
+    const tiles=order.map(k=>{
+      const p=s.pillars[k]; const me=k==='일주';
+      if(!p) return `<div class="pillar"><div class="glyphs"><div class="g none">—</div><div class="g none">—</div></div><div class="role">${k}</div><div class="kr">시간 모름</div></div>`;
+      const st=p.hanja[0], br=p.hanja[1];
+      return `<div class="pillar${me?' me':''}">${me?'<div class="me-badge">나</div>':''}<div class="glyphs">${glyph(st,STEM_EL[st])}${glyph(br,BRANCH_EL[br])}</div><div class="role">${k}</div><div class="kr">${p.hangul}</div></div>`;
+    }).join('');
+    const dist=s.오행분포;
+    const maxV=Math.max(...Object.values(dist));
+    const chips=Object.entries(dist).map(([k,v])=>{
+      if(v===0) return `<span class="el-chip zero" style="background:${EL_DARK[k]}">${k} 없음</span>`;
+      return `<span class="el-chip${v===maxV?' max':''}" style="background:${EL_DARK[k]}">${k} ${v}</span>`;
+    }).join('');
+    const maxEls=Object.keys(dist).filter(k=>dist[k]===maxV);
+    const zeroEls=Object.keys(dist).filter(k=>dist[k]===0);
+    const sum = zeroEls.length
+      ? `${maxEls.join('·')} 기운이 ${maxEls.length>1?'강하고':'가장 많고'} · ${zeroEls.join('·')} 기운이 없어요`
+      : '오행이 고르게 분포된 편이에요';
+    return `<div class="saju-box"><div class="s-date">${dateLine}</div><div class="pillars">${tiles}</div>`
+      + `<div class="oh-chips">${chips}</div><div class="oh-sum">${sum}</div></div>`;
+  }
+
   document.getElementById('go').onclick = async ()=>{
     const errEl=document.getElementById('formErr'); errEl.style.display='none';
     const birth=document.getElementById('birth').value;
@@ -153,7 +208,8 @@
         body:JSON.stringify(payload)});
       const data=await res.json();
       if(!res.ok) throw new Error(data.error||'오류가 발생했어요');
-      ans.innerHTML=`<div class="box"><div class="t">💘 나의 인연사주</div>${paras(data.text)}</div>`;
+      ans.innerHTML=(data.saju?renderMyeongsik(data.saju,y,m,d):'')
+        +`<div class="box"><div class="t">💘 나의 인연사주</div>${paras(data.text)}</div>`;
       ans.scrollIntoView({behavior:'smooth', block:'start'});
     }catch(e){
       ans.innerHTML=''; errEl.textContent=e.message; errEl.style.display='block';
