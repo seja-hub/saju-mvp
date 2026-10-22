@@ -86,6 +86,22 @@
     cursor:pointer; transition:transform .08s, background .15s;}
   .share-btn:active{transform:scale(.98); background:rgba(212,175,90,.1);}
 
+  /* ── 대화 주제 카드 ── */
+  .t-card{background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:18px 16px 14px; margin-top:12px; animation:fadeUp .35s ease;}
+  .t-card .t-h{font-size:14.5px; font-weight:800; color:var(--pink); margin-bottom:10px;}
+  .t-card .t-s{font-size:11.5px; color:var(--sub); margin:-6px 0 10px;}
+  .t-row{display:flex; gap:9px; align-items:flex-start; padding:9px 0;
+    border-bottom:1px solid rgba(255,255,255,.06); font-size:13.5px; line-height:1.55;}
+  .t-row:last-of-type{border-bottom:none;}
+  .t-cat{flex-shrink:0; font-size:10.5px; font-weight:800; color:var(--gold);
+    background:rgba(212,175,90,.12); border:1px solid rgba(212,175,90,.3);
+    border-radius:999px; padding:2px 9px; margin-top:2px; white-space:nowrap;}
+  .t-btn{display:block; width:100%; margin-top:11px; padding:11px; font-size:13.5px; font-weight:800;
+    color:var(--pink); background:transparent; border:1.5px solid rgba(247,168,196,.5);
+    border-radius:11px; cursor:pointer; transition:transform .08s, background .15s;}
+  .t-btn:active{transform:scale(.98); background:rgba(247,168,196,.08);}
+
   #answer{margin-top:4px;}
   .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--pink);
     border-radius:14px; padding:20px 18px; font-size:15px; animation:fadeUp .35s ease;}
@@ -220,6 +236,70 @@
     return spont>plan?'즉흥형':'계획형';
   }
 
+  // ── 대화 주제 추첨 (사주 기반 1개 + 공용 풀 3개, 뽑을 때마다 변경) ──
+  function topicPool(sj){
+    const dist=sj.오행분포;
+    const maxV=Math.max(...Object.values(dist));
+    const maxEl=Object.keys(dist).find(k=>dist[k]===maxV);
+    const zero=Object.keys(dist).filter(k=>dist[k]===0);
+    const style=styleOf(dist);
+    const ilgan=`${sj.일간.hangul}(${sj.일간.hanja})`;
+    const saju=[
+      `제 사주엔 ${maxEl} 기운이 제일 많대요 — 어쩐지 그럴듯하지 않아요?`,
+      `저 ${style} 여행자로 나왔어요 — 실제로도 그런 편이에요?`,
+      `서로 일간 뭐 나왔는지 비교해봐요 — 저는 ${ilgan}이래요`,
+      `오행 카드 보여주면서 "우리 기운 잘 맞는지 볼래요?"로 시작해보기`,
+    ];
+    if(zero.length) saju.push(`제 사주에 ${zero.join('·')} 기운이 없대요 — 그 기운 갖고 계신 분 어디 없나요?`);
+    return {
+      '🔮 내 사주': saju,
+      '⚖️ 밸런스': [
+        '계획 꽉 찬 여행 vs 무계획 즉흥 여행, 어느 쪽이에요?',
+        '여행 가면 아침형이에요, 밤 산책형이에요?',
+        '사진 100장 찍기 vs 눈에 담기, 당신의 선택은?',
+        '유명 맛집 웨이팅 vs 숨은 로컬 식당 — 어디 가실래요?',
+        '한복 입고 인생샷 vs 편한 옷으로 많이 걷기?',
+        '같은 곳 또 가는 파 vs 매번 새로운 곳 가는 파?',
+        '여행 중 길을 잃었다 — 지도 앱 정독파? 일단 직진파?',
+      ],
+      '🏯 경주': [
+        '경주에서 하룻밤 더 생긴다면 뭐 하고 싶어요?',
+        '황리단길에서 꼭 먹어야 한다는 것, 뭐부터 드실래요?',
+        '첨성대 야경 vs 월정교 야경 — 어느 쪽이 더 설렐까요?',
+        '수학여행으로 경주 와본 적 있어요? 그때 기억 하나만요',
+        '오늘 사진을 딱 한 장만 남긴다면 어디서 찍을래요?',
+        '경주 하면 떠오르는 것 세 가지, 바로 말해보기',
+      ],
+      '💬 알아가기': [
+        '여행지에서 처음 만난 사람과 친해져본 적 있어요?',
+        '요즘 제일 자주 듣는 노래는요? 지금 이 길에 어울리는 걸로',
+        '약속 없는 주말엔 보통 뭐 하면서 보내요?',
+        '최근에 제일 크게 웃었던 순간 하나만 들려줘요',
+        '살면서 제일 좋았던 여행지는 어디였어요?',
+        '첫인상과 제일 달랐다는 말, 들어본 적 있어요?',
+      ],
+      '😆 TMI': [
+        '여행 가방 쌀 때 제일 먼저 넣는 게 뭐예요?',
+        '혹시 길치세요? 아니면 저만 믿고 따라오실래요?',
+        '여행지에서 꼭 사 오는 기념품이 있나요?',
+        '여행 중 제일 못 참는 것 — 배고픔? 졸림? 발 아픔?',
+        '내 휴대폰 사진첩 맨 위에 있는 사진, 공개할 수 있어요?',
+      ],
+    };
+  }
+  let topicData=null;
+  function drawTopics(){
+    if(!topicData) return;
+    const cats=Object.keys(topicData);
+    const pick=(arr)=>arr[Math.floor(Math.random()*arr.length)];
+    const rows=[];
+    rows.push(['🔮 내 사주', pick(topicData['🔮 내 사주'])]);
+    const others=cats.filter(c=>c!=='🔮 내 사주').sort(()=>Math.random()-.5).slice(0,3);
+    others.forEach(c=>rows.push([c, pick(topicData[c])]));
+    document.getElementById('topicRows').innerHTML=rows.map(([c,q])=>
+      `<div class="t-row"><span class="t-cat">${c}</span><span>${q}</span></div>`).join('');
+  }
+
   // ── 오행 한 줄 요약 (계산된 분포 기반 — 임의 생성 없음) ──
   const EL_TRAIT={목:['새로움을 심는 호기심','🌿'],화:['뜨거운 열정','🔥'],토:['든든한 안정감','🏛️'],금:['맺고 끊는 단단함','✨'],수:['깊고 섬세한 감성','🌙']};
   function travelerLine(dist){
@@ -309,8 +389,14 @@
       const data=await res.json();
       if(!res.ok) throw new Error(data.error||'오류가 발생했어요');
       ans.innerHTML=(data.saju?renderMyeongsik(data.saju,y,m,d):'')
-        +`<div class="box"><div class="t">🔮 나의 귀인로드 사주</div>${paras(data.text)}</div>`;
+        +`<div class="box"><div class="t">🔮 나의 귀인로드 사주</div>${paras(data.text)}</div>`
+        +(data.saju?`<div class="t-card"><div class="t-h">🎲 오늘의 대화 주제</div>
+          <div class="t-s">어색할 땐 이 중 하나로 시작해보세요 — 뽑을 때마다 달라져요</div>
+          <div id="topicRows"></div>
+          <button class="t-btn" id="topicBtn">🎲 다른 주제 뽑기</button></div>`:'');
       const sb=document.getElementById('shareBtn'); if(sb) sb.onclick=shareCard;
+      if(data.saju){ topicData=topicPool(data.saju); drawTopics();
+        document.getElementById('topicBtn').onclick=drawTopics; }
       ans.scrollIntoView({behavior:'smooth', block:'start'});
     }catch(e){
       ans.innerHTML=''; errEl.textContent=e.message; errEl.style.display='block';
