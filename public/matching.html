@@ -206,7 +206,7 @@
       </details>`).join('');
     return `<div class="pcard">
       <div class="p-head"><b class="${side==='M'?'g-m':'g-f'}">${esc(me.name)}</b>
-        <span class="p-meta">${side==='M'?'남':'여'} · 일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · ${me.mbti} · 테토 ${me.teto}%</span>
+        <span class="p-meta">${side==='M'?'남':'여'} · 일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · ${me.mainEl} 기운 · ${me.style}</span>
         <button class="copyBtn" data-s="${side}" data-i="${idx}">📋 결과 복사</button></div>
       <div class="tops">
         <div class="tl">💘 나의 귀인 TOP 2 ${topG.map(p=>pill(p,'gwiin')).join('')}</div>
@@ -231,7 +231,7 @@
     const byS=[...ps].sort((a,b)=>b.mate-a.mate);
     const L=[];
     L.push(`💘 경주 귀인로드 — ${me.name}님 매칭 결과`);
-    L.push(`(일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · 예상 ${me.mbti} · 테토 ${me.teto}% / 에겐 ${me.egen}%)`);
+    L.push(`(일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · ${me.mainEl} 기운 여행자 · ${me.style})`);
     L.push('');
     L.push('[나의 귀인 TOP 2]');
     byG.slice(0,2).forEach((p,i)=>L.push(`${i+1}. ${p.partner.name} — ${p.gwiin}점`));
