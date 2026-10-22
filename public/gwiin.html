@@ -5,6 +5,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>경주 귀인로드</title>
+<meta property="og:title" content="경주 귀인로드 — 나의 오행 확인하기" />
+<meta property="og:description" content="사주 오행으로 알아보는 나의 성향과 인연 이야기. 오늘, 귀인 만나러 경주 왔습니다 💘" />
+<meta name="description" content="사주를 곁들인 경주 귀인로드 — 사주 오행으로 알아보는 나의 성향과 인연 이야기" />
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <style>
   :root{
@@ -76,6 +79,8 @@
   .el-chip.zero{opacity:.35;}
   .oh-sum{margin-top:11px; font-size:12.5px; color:var(--pink); font-weight:700;}
   .oh-title{margin-top:9px; font-size:15px; color:var(--gold); font-weight:800; letter-spacing:-.2px; word-break:keep-all;}
+  .oh-style{margin-top:8px; font-size:12.5px; color:var(--sub); font-weight:600;}
+  .oh-style b{color:var(--pink); font-weight:800;}
   .share-btn{display:block; width:100%; margin:0 0 12px; padding:13px; font-size:14px; font-weight:800;
     color:var(--gold); background:transparent; border:1.5px solid rgba(212,175,90,.55); border-radius:12px;
     cursor:pointer; transition:transform .08s, background .15s;}
@@ -180,7 +185,7 @@
   function renderMyeongsik(s, y, m, d){
     const order=['년주','월주','일주','시주'];
     const dateLine=`${y} · ${String(m).padStart(2,'0')} · ${String(d).padStart(2,'0')}`
-      + (s.시간보정?`  ·  진태양시 ${s.시간보정.hour}:${String(s.시간보정.minute).padStart(2,'0')} 보정`:'');
+      + (s.시간보정 && !s.시간모름 ? `  ·  진태양시 ${s.시간보정.hour}:${String(s.시간보정.minute).padStart(2,'0')} 보정` : '');
     const tiles=order.map(k=>{
       const p=s.pillars[k]; const me=k==='일주';
       if(!p) return `<div class="pillar"><div class="glyphs"><div class="g none">—</div><div class="g none">—</div></div><div class="role">${k}</div><div class="kr">시간 모름</div></div>`;
@@ -199,11 +204,20 @@
       ? `${maxEls.join('·')} 기운이 ${maxEls.length>1?'강하고':'가장 많고'} · ${zeroEls.join('·')} 기운은 여행에서 채워가면 좋아요`
       : '오행이 고르게 분포된 편이에요';
     const title=travelerLine(dist);
-    shareData={ dist:{...dist}, title, sum }; // 공유 카드용 (개인정보 미포함)
+    const style=styleOf(dist);
+    shareData={ dist:{...dist}, title, sum, style }; // 공유 카드용 (개인정보 미포함)
     return `<div class="saju-box"><div class="s-date">${dateLine}</div><div class="pillars">${tiles}</div>`
       + `<div class="oh-chips">${chips}</div><div class="oh-sum">${sum}</div>`
-      + `<div class="oh-title">“${title}”</div></div>`
+      + `<div class="oh-title">“${title}”</div>`
+      + `<div class="oh-style">🧭 나의 여행 스타일 · <b>${style}</b></div></div>`
       + `<button class="share-btn" id="shareBtn">📸 내 오행 카드 저장·공유하기</button>`;
+  }
+
+  // ── 여행 스타일 (오행 분포 기반 — matching.js와 같은 공식) ──
+  function styleOf(dist){
+    const spont=dist.화*2+dist.목, plan=dist.토*2+dist.금;
+    if(Math.abs(spont-plan)<=1) return '밸런스형';
+    return spont>plan?'즉흥형':'계획형';
   }
 
   // ── 오행 한 줄 요약 (계산된 분포 기반 — 임의 생성 없음) ──
@@ -254,9 +268,11 @@
     let line='', lines=[];
     for(const w of words){ if(x.measureText(line+' '+w).width>600 && line){ lines.push(line); line=w; } else line=line?line+' '+w:w; }
     lines.push(line);
-    lines.forEach((l,i)=>x.fillText(l, 360, 756+i*42));
+    lines.forEach((l,i)=>x.fillText(l, 360, 740+i*42));
+    x.fillStyle='#F7A8C4'; x.font='700 23px Pretendard, sans-serif';
+    x.fillText(`🧭 나의 여행 스타일 · ${shareData.style}`, 360, 740+lines.length*42+16);
     x.fillStyle='#9b8e95'; x.font='600 19px Pretendard, sans-serif';
-    x.fillText('재미로 보는 사주 콘텐츠예요', 360, 860);
+    x.fillText('재미로 보는 사주 콘텐츠예요', 360, 872);
     return c;
   }
   function roundRect(x,px,py,w,h,r){ x.beginPath(); x.moveTo(px+r,py); x.arcTo(px+w,py,px+w,py+h,r);
