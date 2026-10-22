@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- '귀인 만날 결심' 운영자용 매칭 도구 — URL 직접 접근 전용(랜딩 미노출), /api/matching(계산 전용) 사용 -->
+<!-- '경주 귀인로드' 운영자용 단체 매칭 도구 — URL 직접 접근 전용(랜딩 미노출), /api/matching(계산 전용) 사용 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>귀인 매칭 보드 (운영자용)</title>
+<title>경주 귀인로드 매칭 보드 (운영자용)</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <style>
   :root{
@@ -93,8 +93,8 @@
 <div class="wrap">
   <header>
     <span class="op-pill">운영자용 도구</span>
-    <h1>💘 <em>귀인 만날 결심</em> 매칭 보드</h1>
-    <p>9.18 금 19:00 · 전포 월하정 — 남녀 명단 입력 후 매칭 실행</p>
+    <h1>💘 <em>경주 귀인로드</em> 매칭 보드</h1>
+    <p>황리단길 → 월정교 · 남녀 명단(비대칭 가능) 입력 후 매칭 실행 — 연인 궁합 💘 + 여행메이트 궁합 🧳</p>
   </header>
 
   <div class="cols">
@@ -120,7 +120,7 @@
   <div class="err" id="err"></div>
   <div id="results"></div>
 
-  <footer>재미로 보는 콘텐츠 · 만 19세 이상 · 운영자 전용(랜딩 미노출)</footer>
+  <footer>재미로 보는 콘텐츠 · 실제 궁합을 보장하지 않아요 · 운영자 전용(랜딩 미노출)</footer>
 </div>
 <div id="toast"></div>
 
@@ -175,7 +175,7 @@
     if(!males.length || !females.length){ showErr('남측·여측 각각 1명 이상 입력해 주세요.'); return; }
     const btn=document.getElementById('run'); btn.disabled=true;
     const box=document.getElementById('results');
-    box.innerHTML='<div class="loading">사주 계산 중... (Gemini 미사용 · 즉시 계산)</div>';
+    box.innerHTML='<div class="loading">사주 궁합 계산 중... (즉시 계산)</div>';
     try{
       const res=await fetch('/api/matching',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({males,females})});
@@ -196,12 +196,12 @@
     const me = side==='M' ? R.males[idx] : R.females[idx];
     const ps = partnersOf(side, idx);
     const byG=[...ps].sort((a,b)=>b.gwiin-a.gwiin);
-    const byS=[...ps].sort((a,b)=>b.sool-a.sool);
+    const byS=[...ps].sort((a,b)=>b.mate-a.mate);
     const topG=byG.slice(0,2), topS=byS.slice(0,2);
     const pill=(p,k)=>`<span class="pill">${esc(p.partner.name)} ${p[k]}점</span>`;
     const rows=byG.map(p=>
       `<details class="prow"><summary><span class="r-arrow">▶</span><span class="r-name">${esc(p.partner.name)}</span>
-        <span class="r-g">귀인 ${p.gwiin}점</span><span class="r-s">술친구 ${p.sool}점</span></summary>
+        <span class="r-g">귀인 ${p.gwiin}점</span><span class="r-s">메이트 ${p.mate}점</span></summary>
         <div class="r-body">${p.reasons.map(r=>`<div>${esc(r)}</div>`).join('')}</div>
       </details>`).join('');
     return `<div class="pcard">
@@ -210,7 +210,7 @@
         <button class="copyBtn" data-s="${side}" data-i="${idx}">📋 결과 복사</button></div>
       <div class="tops">
         <div class="tl">💘 나의 귀인 TOP 2 ${topG.map(p=>pill(p,'gwiin')).join('')}</div>
-        <div class="tl sool">🍶 나의 술친구 TOP 2 ${topS.map(p=>pill(p,'sool')).join('')}</div>
+        <div class="tl sool">🧳 나의 여행메이트 TOP 2 ${topS.map(p=>pill(p,'mate')).join('')}</div>
       </div>
       ${rows}
     </div>`;
@@ -228,24 +228,24 @@
     const me = side==='M' ? R.males[idx] : R.females[idx];
     const ps = partnersOf(side, idx);
     const byG=[...ps].sort((a,b)=>b.gwiin-a.gwiin);
-    const byS=[...ps].sort((a,b)=>b.sool-a.sool);
+    const byS=[...ps].sort((a,b)=>b.mate-a.mate);
     const L=[];
-    L.push(`💘 좋은데이 귀인 만날 결심 — ${me.name}님 매칭 결과`);
+    L.push(`💘 경주 귀인로드 — ${me.name}님 매칭 결과`);
     L.push(`(일간 ${me.ilgan.hangul}(${me.ilgan.hanja}) · 예상 ${me.mbti} · 테토 ${me.teto}% / 에겐 ${me.egen}%)`);
     L.push('');
     L.push('[나의 귀인 TOP 2]');
     byG.slice(0,2).forEach((p,i)=>L.push(`${i+1}. ${p.partner.name} — ${p.gwiin}점`));
     L.push('');
-    L.push('[나의 술친구 TOP 2]');
-    byS.slice(0,2).forEach((p,i)=>L.push(`${i+1}. ${p.partner.name} — ${p.sool}점`));
+    L.push('[나의 여행메이트 TOP 2]');
+    byS.slice(0,2).forEach((p,i)=>L.push(`${i+1}. ${p.partner.name} — ${p.mate}점`));
     L.push('');
     L.push('[전체 결과 · 귀인점수 순]');
     byG.forEach(p=>{
-      L.push(`▸ ${p.partner.name} — 귀인 ${p.gwiin}점 · 술친구 ${p.sool}점`);
+      L.push(`▸ ${p.partner.name} — 귀인 ${p.gwiin}점 · 여행메이트 ${p.mate}점`);
       p.reasons.forEach(r=>L.push(`   · ${r}`));
     });
     L.push('');
-    L.push('* 재미로 보는 콘텐츠예요 · 만 19세 이상');
+    L.push('* 재미로 보는 콘텐츠예요 · 실제 궁합을 보장하지 않아요');
     return L.join('\n');
   }
   async function copyResult(side, idx){
